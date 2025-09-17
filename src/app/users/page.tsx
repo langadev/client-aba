@@ -517,7 +517,7 @@ export default function EditUserPage() {
       setTimeout(() => setSuccessSchool(null), 3500);
     } catch (e) {
       console.error(e);
-      toast.error(e?.response?.data?.message || "Erro ao guardar educação.");
+      toast.error((e as any)?.response?.data?.message || "Erro ao guardar educação.");
     }
   };
 
@@ -1586,4 +1586,3 @@ export default function EditUserPage() {
     </div>
   );
 }
-     
