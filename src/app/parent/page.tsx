@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   getChildrenByParent,
-  getChildrenWithPsychologists,
   type ChildWithPsychologists,
 } from "../../api/repository/childRepository"
 import { useAuthStore } from "@/store/userStore";
@@ -12,7 +11,6 @@ import {
   Baby,
   Calendar,
   User,
-  Phone,
   Edit,
   Heart,
   Loader,
@@ -57,6 +55,7 @@ export default function MyChildren() {
       // const result = all.filter((c) => c.parentId === Number(user.id));
 
       setChildren(result);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Erro ao carregar filhos:", err);
       setError(err.message || "Erro ao carregar dados dos filhos");

@@ -1,5 +1,5 @@
-import API from "../../utils/axios";
-import { useAuthStore } from "../store/userStore";
+import API from "@/lib/axios";
+import { useAuthStore } from "@/store/userStore";
 
 const auth = () => {
   const token = useAuthStore.getState().token || localStorage.getItem("token");

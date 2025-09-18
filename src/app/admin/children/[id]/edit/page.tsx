@@ -1,3 +1,40 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client"
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import z from "zod";
+import { useRouter } from 'next/router';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "react-toastify";
+import { addPsychologistToChild, getChildById, getChildPsychologists, getParents, getPsychologists, removePsychologistFromChild, updateChild } from "@/api/repository/childRepository";
+import { ArrowLeft, Baby, Cake, Calendar, Heart, Loader, Save, User, Users } from "lucide-react";
+enum Gender{
+  male,
+  female,
+  other
+}
+
+interface Parent {
+  id: number;
+  name: string;
+  email: string;
+}
+
+interface Psychologist {
+  id: number;
+  name: string;
+  specialization: string;
+}
+
+interface ChildFormData {
+  name: string;
+  birthdate: string;
+  gender: Gender;
+  parentId: number;
+  psychologistId?: number;
+}
+
 const childrenSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
   birthdate: z.string().refine((date) => {
@@ -13,8 +50,9 @@ const childrenSchema = z.object({
 })
 type ChildrenFormData = z.infer<typeof childrenSchema>;
 
-const EditChildPage: React.FC = () => {
-  const navigate = useNavigate();
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function EditChildPage() {
+  const router = useRouter();
   const { id } = useParams<{ id: string }>();
 
   const [loading, setLoading] = useState(false);
@@ -50,7 +88,7 @@ const EditChildPage: React.FC = () => {
     const fetchData = async () => {
       if (!id) {
         toast.error("ID da criança não especificado");
-        navigate("/parent");
+        router.push("/parent");
         return;
       }
 
@@ -78,14 +116,15 @@ const EditChildPage: React.FC = () => {
         const errorMessage =
           error?.response?.data?.message || "Erro ao carregar dados necessários.";
         toast.error(errorMessage);
-        navigate("/parent");
+        router.push("/parent");
       } finally {
         setLoadingData(false);
       }
     };
 
     fetchData();
-  }, [id, navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, router]);
 
 
 
@@ -126,7 +165,7 @@ const EditChildPage: React.FC = () => {
     try {
       await updateChild(id!, data as any);
       toast.success("Criança atualizada com sucesso!");
-      navigate("/parent");
+      router.push("/parent");
     } catch (error: any) {
       console.error("Erro ao atualizar criança:", error);
       const errorMessage =
@@ -151,8 +190,8 @@ const EditChildPage: React.FC = () => {
   };
 
   const getGenderLabel = (gender: Gender): string => {
-    if(Gender.male) return "Masculino";
-    if(Gender.female) return "Feminino";
+    if(Gender.female==gender) return "Feminino";
+    if(Gender.male==gender) return "Masculino";
     return "Outro";
   };
 
@@ -173,7 +212,7 @@ const EditChildPage: React.FC = () => {
         {/* Cabeçalho */}
         <div className="mb-6">
           <button
-            onClick={() => navigate("/parent")}
+            onClick={() => router.push("/parent")}
             className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -405,7 +444,7 @@ const EditChildPage: React.FC = () => {
             <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"
-                onClick={() => navigate("/admin/children")}
+                onClick={() => router.push("/admin/children")}
                 className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                 disabled={loading}
               >
@@ -439,7 +478,7 @@ const EditChildPage: React.FC = () => {
             <li>• Campos marcados com * são obrigatórios</li>
             <li>• A data de nascimento não pode ser futura</li>
             <li>• O nome deve ter pelo menos 3 caracteres</li>
-            <li>• O status "Inativa" impede o acesso aos recursos da criança</li>
+            <li>• O status &quot;Inativa&quot; impede o acesso aos recursos da criança</li>
             <li>• A alteração do responsável atualizará todos os registros associados</li>
           </ul>
         </div>

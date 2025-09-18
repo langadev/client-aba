@@ -8,6 +8,7 @@ export const loginUser = async (email: string, password: string) => {
 
     localStorage.setItem("token", token); // salva JWT localmente
     return { user, token }; // retorna token também
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     throw new Error(err.response?.data?.error || "Erro ao fazer login");
   }

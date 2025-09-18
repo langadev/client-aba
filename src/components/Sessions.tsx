@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/(psychologist)/children/[id]/sessions/Sessions.tsx
 "use client";
 
@@ -89,11 +90,11 @@ const consultationFormSchema = z
       .string()
       .min(1, "Início é obrigatório")
       .refine((val) => !Number.isNaN(Date.parse(val)), "Data/hora inválida"),
-    durationMin: z.coerce.number().int().min(15, "Mínimo 15 min").max(240, "Máximo 240 min").default(60),
+    durationMin: z.number().min(15, "Duração mínima de 15 minutos").max(240, "Duração máxima de 240 minutos"),
     reason: z.string().min(5, "Motivo deve ter pelo menos 5 caracteres"),
-    status: z.enum(["scheduled", "cancelled", "done"]).default("scheduled"),
+    status: z.enum(["scheduled", "cancelled", "done"]),
     notes: z.string().optional(),
-    isInPerson: z.boolean().default(false),
+    isInPerson: z.boolean(),
     location: z.string().max(255).optional(),
   })
   .superRefine((data, ctx) => {
@@ -152,15 +153,6 @@ export default function Sessions(): JSX.Element {
     formState: { errors, isSubmitting },
   } = useForm<ConsultationFormValues>({
     resolver: zodResolver(consultationFormSchema),
-    defaultValues: {
-      startAt: "",
-      durationMin: 60,
-      reason: "",
-      status: "scheduled",
-      notes: "",
-      isInPerson: false,
-      location: "",
-    },
   });
   const watchIsInPerson = watch("isInPerson");
 
@@ -211,6 +203,7 @@ export default function Sessions(): JSX.Element {
     loadGoals();
   }, [selectedSession]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const now = new Date();
   const upcoming = useMemo(
     () =>
@@ -234,8 +227,8 @@ export default function Sessions(): JSX.Element {
     setEditingSession(null);
     reset({
       startAt: "",
-      durationMin: 60,
       reason: "",
+      durationMin: 60,
       status: "scheduled",
       notes: "",
       isInPerson: false,

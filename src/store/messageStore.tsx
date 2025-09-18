@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/store/messageStore.ts
 import { create } from "zustand";
 import * as messageService from "../api/repository/messageRepository";
@@ -38,6 +39,7 @@ const computeDisplayName = (
   return others.map((o) => o.name).filter(Boolean).join(", ") || conv.name;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const useMessageStore = create<MessageState>((set, _get) => ({
   conversations: [],
   messagesByConversation: {},
@@ -49,7 +51,7 @@ export const useMessageStore = create<MessageState>((set, _get) => ({
     try {
       const convs = await messageService.getConversations();
       const currentUserId = useAuthStore.getState().user?.id ?? null;
-      const mapped = convs.map((c) => ({ ...c, name: computeDisplayName(c, currentUserId) || c.name }));
+      const mapped = convs.map((c) => ({ ...c, name: computeDisplayName(c, parseInt(currentUserId!)) || c.name }));
       set({ conversations: mapped, loading: false });
     } catch (err) {
       console.warn("fetchConversations failed:", err);
@@ -141,7 +143,7 @@ export const useMessageStore = create<MessageState>((set, _get) => ({
     try {
       const updated = await messageService.addPsychologistToConversation(conversationId, psychologistId);
       const currentUserId = useAuthStore.getState().user?.id ?? null;
-      const withDisplayName = { ...updated, name: computeDisplayName(updated as any, currentUserId) || updated.name };
+      const withDisplayName = { ...updated, name: computeDisplayName(updated as any, parseInt(currentUserId!)) || updated.name };
 
       set((state) => ({
         conversations: state.conversations.map((c) => (c.id === conversationId ? (withDisplayName as any) : c)),
@@ -178,7 +180,7 @@ export const useMessageStore = create<MessageState>((set, _get) => ({
               ? {
                   ...c,
                   participants,
-                  name: computeDisplayName({ ...c, participants } as any, currentUserId) || c.name,
+                  name: computeDisplayName({ ...c, participants } as any, parseInt(currentUserId!)) || c.name,
                 }
               : c
           ),

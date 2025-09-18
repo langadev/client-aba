@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -151,7 +152,6 @@ export default function GoalsPage({ childId }: { childId: number }) {
         categoryId: newGoal.categoryId,
         dueDate: newGoal.targetDate,
         status: "pending",
-        childId,
       });
 
       const enhanced: GoalWithMilestones = {
@@ -545,8 +545,8 @@ export default function GoalsPage({ childId }: { childId: number }) {
                             <h3 className="text-lg font-bold text-gray-900 break-words">
                               {goal.title}
                             </h3>
-                            <Badge className={`text-xs ${getCategoryColor(goal.categoryId)}`}>
-                              {getCategoryName(goal.categoryId)}
+                            <Badge className={`text-xs ${getCategoryColor(goal.categoryId!)}`}>
+                              {getCategoryName(goal.categoryId!)}
                             </Badge>
                             <Badge variant="outline" className="text-xs">
                               {goal.status === "in_progress"
@@ -697,8 +697,8 @@ export default function GoalsPage({ childId }: { childId: number }) {
                           </h3>
                           <CheckCircleIcon className="w-5 h-5 text-green-500" />
                         </div>
-                        <Badge className={`text-xs ${getCategoryColor(goal.categoryId)}`}>
-                          {getCategoryName(goal.categoryId)}
+                        <Badge className={`text-xs ${getCategoryColor(goal.categoryId!)}`}>
+                          {getCategoryName(goal.categoryId!)}
                         </Badge>
                       </div>
                     </div>

@@ -12,7 +12,6 @@ import {
   Plus as PlusIcon,
   X as XIcon,
   User as UserIcon,
-  CreditCard as CreditCardIcon,
   AlertTriangle as AlertTriangleIcon,
   Clock as ClockIcon,
 } from "lucide-react";
@@ -400,7 +399,6 @@ export const Billing = (): JSX.Element => {
 
   /* -------------------------------- KPIs -------------------------------- */
 
-  const currentCurrency: Currency = "MZN";
 
   // PAI vê apenas as suas faturas (com fallback se backend já filtra)
   const visibleInvoices = useMemo(() => {
@@ -565,6 +563,7 @@ export const Billing = (): JSX.Element => {
       setSelectedParent(null);
       setParentQuery("");
       alert("Fatura criada com sucesso!");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error("Erro ao criar fatura:", e);
       alert(e?.response?.data?.detail || "Falha ao criar fatura.");
@@ -776,6 +775,7 @@ export const Billing = (): JSX.Element => {
                   <select
                     className="appearance-none pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm"
                     value={sortBy}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     onChange={(e) => setSortBy(e.target.value as any)}
                   >
                     <option value="date">Ordenar por Data</option>

@@ -99,6 +99,7 @@ export const getAllPsychologists = async () => {
   const list = (res.data || []) as Array<{ id: number; name: string; role?: string }>;
   // 🔒 garanta que só retorna PSICOLOGO mesmo se o backend esquecer de filtrar
   return list
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter(u => (u as any).role === 'PSICOLOGO' || (u as any).role === undefined) // se backend não enviar role, mantenha os que não contradizem
     .map(u => ({ id: u.id, name: u.name }));
 };

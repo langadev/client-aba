@@ -20,12 +20,22 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {z} from "zod";
 
 // Tipos baseados no schema Zod
-type Gender = "male" | "female" | "other";
-type UserRole = "ADMIN" | "PAI" | "PSICOLOGO";
+// type Gender = "male" | "female" | "other";
+// type UserRole = "ADMIN" | "PAI" | "PSICOLOGO";
 
-export const UserRoleEnum = z.enum(["PAI", "MAE", "FILHO", "RESPONSAVEL"]);
+enum UserRole {
+  PAI = "PAI",
+  MAE = "MAE",
+  FILHO = "FILHO",
+  RESPONSAVEL = "RESPONSAVEL",
+}
 
-export const userFormSchema = z.object({
+enum Gender {
+  M = "M",
+  F = "F",
+  O = "O",
+}
+ const userFormSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
@@ -36,20 +46,20 @@ export const userFormSchema = z.object({
   }, {
     message: "Data de nascimento inválida",
   }),
-  gender: z.enum(["M", "F", "O"]).optional(),
-  role: UserRoleEnum,
+  gender: z.enum([Gender.F,Gender.M,Gender.O],"Selecione um gênero"),
+  role: z.enum([UserRole.PAI,UserRole.MAE,UserRole.FILHO,UserRole.RESPONSAVEL],"Selecione um tipo de usuário"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
   path: ["confirmPassword"],
 });
 
 
-export type UserFormData = z.infer<typeof userFormSchema>;
+ type UserFormData = z.infer<typeof userFormSchema>;
 
-const CreateUserPage: React.FC = () => {
+export default function CreateUserPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const {
     register,
@@ -65,7 +75,7 @@ const CreateUserPage: React.FC = () => {
       phone: "",
       birthdate: "",
       gender: undefined,
-      role: "PAI",
+      role: UserRole.PAI,
     },
   });
 
@@ -76,11 +86,13 @@ const CreateUserPage: React.FC = () => {
     try {
       // Preparar dados para envio (remover confirmPassword)
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await createUser(data as unknown as any);
       
       toast.success("Usuário criado com sucesso!");
       router.back();
       
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao criar usuário:", error);
       const errorMessage = error.response?.data?.message || "Erro ao criar usuário. Tente novamente.";
@@ -343,5 +355,3 @@ const CreateUserPage: React.FC = () => {
     </div>
   );
 };
-
-export default CreateUserPage;

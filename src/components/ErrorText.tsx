@@ -6,6 +6,6 @@ type Props={
 export function ErrorText({field}:Props){
     if(!field) return;
     return(
-        
+        <span>{field.message}</span>
     )
 }

@@ -13,11 +13,8 @@ import {
   User,
 } from "lucide-react";
 import ChildInfo from "../../../../components/ChildInfo";
-import Goals from "@/components/Goals";
 import Sessions from "@/components/Sessions";
 import Reports from "@/components/Reports";
-import Appointments from "@/components/Appointments";
-import Billing from "@/components/Billing";
 import Messages from "@/components/Message";
 
 import { useAuthStore } from "@/store/userStore";

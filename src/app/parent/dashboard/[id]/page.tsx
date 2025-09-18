@@ -51,7 +51,7 @@ const ParentDashboard = (): JSX.Element => {
   const renderScreen = () => {
     switch (currentScreen) {
       case "goals":
-        return <Goals />;
+        return <Goals childId={1}/>;
       case "consultations":
         return <Sessions />;
       case "reports":

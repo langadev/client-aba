@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -295,7 +296,6 @@ export default function ReportList() {
 
   const exportAll = async () => {
     for (const r of filtered) {
-      // eslint-disable-next-line no-await-in-loop
       await handleDownload(r.consultationId);
     }
   };

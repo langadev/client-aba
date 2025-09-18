@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useState, useEffect } from "react";
@@ -16,38 +17,37 @@ import {
   Calendar,
   Loader,
   RefreshCw,
-  Eye,
-  EyeOff
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { UserDTO } from "@/api/repository/childRepository";
 
 // Tipos baseados no schema Zod
-type Gender = "male" | "female" | "other";
+// type Gender = "male" | "female" | "other";
 type UserRole = "ADMIN" | "PAI" | "PSICOLOGO" | "USER";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  birthdate?: string;
-  gender?: Gender;
-  role: UserRole;
-  createdAt: string;
-  status: "active" | "inactive";
-}
+// interface User {
+//   id: string;
+//   name: string;
+//   email: string;
+//   phone?: string;
+//   birthdate?: string;
+//   gender?: Gender;
+//   role: UserRole;
+//   createdAt: string;
+//   status: "active" | "inactive";
+// }
 
 const AdminDashboard: React.FC = () => {
   const router = useRouter();
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserDTO[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserDTO[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [showPasswords, setShowPasswords] = useState<{ [key: string]: boolean }>({});
+  const [_, setShowPasswords] = useState<{ [key: string]: boolean }>({});
 
   // Buscar usuários da API
   const fetchUsers = async (isRefreshing = false) => {
@@ -62,8 +62,9 @@ const AdminDashboard: React.FC = () => {
     try {
       const response = await getUsers();
       // Adaptar a resposta conforme a estrutura da sua API
-      const usersData = response.data || response;
+      const usersData =  response;
       setUsers(Array.isArray(usersData) ? usersData : []);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Erro ao buscar usuários:", err);
       setError(err.response?.data?.message || "Erro ao carregar usuários. Tente novamente.");
@@ -94,9 +95,9 @@ const AdminDashboard: React.FC = () => {
       result = result.filter(user => user.role === roleFilter);
     }
     
-    if (statusFilter !== "all") {
-      result = result.filter(user => user.status === statusFilter);
-    }
+    // if (statusFilter !== "all") {
+    //   result = result.filter(user => user.status === statusFilter);
+    // }
     
     setFilteredUsers(result);
   }, [users, searchTerm, roleFilter, statusFilter]);
@@ -105,8 +106,9 @@ const AdminDashboard: React.FC = () => {
     if (window.confirm("Tem certeza que deseja excluir este usuário?")) {
       try {
         await deleteUser(userId);
-        setUsers(prev => prev.filter(user => user.id !== userId));
+        setUsers(prev => prev.filter(user => user.id !== parseInt(userId)));
         toast.success("Usuário excluído com sucesso!");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error("Erro ao excluir usuário:", err);
         const errorMessage = err.response?.data?.message || "Erro ao excluir usuário.";
@@ -117,19 +119,21 @@ const AdminDashboard: React.FC = () => {
 
   const handleStatusToggle = async (userId: string) => {
     try {
-      const user = users.find(u => u.id === userId);
+      const user = users.find(u => u.id === parseInt(userId));
       if (!user) return;
 
-      const newStatus = user.status === "active" ? "inactive" : "active";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const newStatus = (user as any)?.status === "active" ? "inactive" : "active";
       await updateUserStatus(userId, newStatus);
       
       setUsers(prev => prev.map(user => 
-        user.id === userId 
+        user.id === parseInt(userId) 
           ? { ...user, status: newStatus }
           : user
       ));
       
       toast.success(`Usuário ${newStatus === "active" ? "ativado" : "desativado"} com sucesso!`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Erro ao atualizar status:", err);
       const errorMessage = err.response?.data?.message || "Erro ao atualizar status.";
@@ -167,8 +171,8 @@ const AdminDashboard: React.FC = () => {
       user.email,
       user.phone || "N/A",
       user.role,
-      user.status,
-      new Date(user.createdAt).toLocaleDateString('pt-BR')
+      // user.status,
+      // new Date(user.createdAt).toLocaleDateString('pt-BR')
     ]);
 
     const csvContent = [
@@ -194,7 +198,7 @@ const AdminDashboard: React.FC = () => {
   // Estatísticas
   const stats = {
     total: users.length,
-    active: users.filter(u => u.status === "active").length,
+    // active: users.filter(u => u.status === "active").length,
     admins: users.filter(u => u.role === "ADMIN").length,
     psychologists: users.filter(u => u.role === "PSICOLOGO").length,
     parents: users.filter(u => u.role === "PAI").length,
@@ -269,7 +273,7 @@ const AdminDashboard: React.FC = () => {
               <Users className="w-6 h-6 text-green-600" />
             </div>
             <h3 className="text-sm font-medium text-gray-600">Ativos</h3>
-            <p className="text-xl font-bold text-gray-900">{stats.active}</p>
+            {/* <p className="text-xl font-bold text-gray-900">{stats.active}</p> */}
           </div>
         </div>
 
@@ -424,7 +428,7 @@ const AdminDashboard: React.FC = () => {
                     )}
                     <div className="text-xs text-gray-500 flex items-center gap-2 mt-1">
                       <Calendar className="w-3 h-3 text-gray-400" />
-                      Criado em {new Date(user.createdAt).toLocaleDateString('pt-BR')}
+                      {/* Criado em {new Date(user.createdAt).toLocaleDateString('pt-BR')} */}
                     </div>
                   </td>
                   
@@ -436,14 +440,14 @@ const AdminDashboard: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.status)}`}>
+                    {/* <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.status)}`}>
                       {user.status === 'active' ? 'Ativo' : 'Inativo'}
-                    </span>
+                    </span> */}
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleStatusToggle(user.id)}
+                      {/* <button
+                        onClick={() => handleStatusToggle(user.id.toString())}
                         className={`p-2 rounded-lg transition-colors ${
                           user.status === 'active' 
                             ? 'bg-green-100 text-green-600 hover:bg-green-200' 
@@ -452,7 +456,7 @@ const AdminDashboard: React.FC = () => {
                         title={user.status === 'active' ? 'Desativar usuário' : 'Ativar usuário'}
                       >
                         {user.status === 'active' ? 'Desativar' : 'Ativar'}
-                      </button>
+                      </button> */}
                       <button
                         onClick={() => router.push(`/admin/users/edit/${user.id}`)}
                         className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
@@ -461,7 +465,7 @@ const AdminDashboard: React.FC = () => {
                         <Edit className="w-4 h-4" />
                       </button>
                       <button 
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => handleDeleteUser(user.id.toString())}
                         className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
                         title="Excluir usuário"
                       >

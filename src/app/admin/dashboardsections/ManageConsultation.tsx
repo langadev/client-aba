@@ -47,10 +47,12 @@ const ManageConsultation: React.FC = () => {
 
   const load = async (isRefresh = false) => {
     setError(null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     isRefresh ? setRefreshing(true) : setLoading(true);
     try {
       const data = await getConsultations();
       setConsultations((Array.isArray(data) ? data : []) as ConsultationRow[]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       const msg =
         e?.response?.data?.message ||

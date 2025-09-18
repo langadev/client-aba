@@ -123,6 +123,7 @@ export const listReports = async (opts?: {
   pageSize?: number;
   order?: "ASC" | "DESC";
 }): Promise<Paginated<ReportDTO>> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any = {};
   if (opts?.page) params.page = opts.page;
   if (opts?.pageSize) params.pageSize = opts.pageSize;
@@ -138,6 +139,7 @@ export const listReportsByConsultationDateRange = async (
   endISO: string,
   opts?: { page?: number; pageSize?: number }
 ): Promise<Paginated<ReportDTO>> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any = { start: startISO, end: endISO };
   if (opts?.page) params.page = opts.page;
   if (opts?.pageSize) params.pageSize = opts.pageSize;
@@ -151,6 +153,7 @@ export const listReportsByParent = async (
   parentId: number,
   opts?: { page?: number; pageSize?: number }
 ): Promise<Paginated<ReportDTO>> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any = {};
   if (opts?.page) params.page = opts.page;
   if (opts?.pageSize) params.pageSize = opts.pageSize;
@@ -164,6 +167,7 @@ export const listReportsByPsychologist = async (
   psychologistId: number,
   opts?: { page?: number; pageSize?: number }
 ): Promise<Paginated<ReportDTO>> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any = {};
   if (opts?.page) params.page = opts.page;
   if (opts?.pageSize) params.pageSize = opts.pageSize;

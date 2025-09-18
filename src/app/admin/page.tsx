@@ -9,7 +9,6 @@ import {
   UserCog,
   Calendar,
   BarChart3,
-  MessageSquare,
   CreditCard,
   Menu as MenuIcon,
   X as CloseIcon,
@@ -17,8 +16,6 @@ import {
   LogOut,
 } from "lucide-react";
 
-import Goals from "@/components/Goals";
-import Sessions from "@/components/Sessions";
 import Reports from "@/components/Reports";
 import Appointments from "@/components/Appointments";
 import Billing from "@/components/Billing";

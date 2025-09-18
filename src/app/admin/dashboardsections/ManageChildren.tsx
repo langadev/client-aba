@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -8,7 +9,6 @@ import {
   Edit,
   Trash2,
   Baby,
-  Users,
   Heart,
   User,
   Cake,
@@ -63,6 +63,7 @@ export default function ManageChildren() {
 
   // ---- Fetch
   const fetchChildren = async (isRefreshing = false) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     isRefreshing ? setRefreshing(true) : setIsLoading(true);
     setError(null);
     try {
@@ -82,7 +83,6 @@ export default function ManageChildren() {
 
   useEffect(() => {
     fetchChildren();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ---- Filtros

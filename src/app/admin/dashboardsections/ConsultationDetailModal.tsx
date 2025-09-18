@@ -115,6 +115,7 @@ export default function ConsultationDetailModal({
       setLoading(true);
       const res = await getConsultationById(consultationId);
       setData(res as ConsultationDetailDTO);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err);
       toast.error(err?.response?.data?.message || "Erro ao carregar consulta");

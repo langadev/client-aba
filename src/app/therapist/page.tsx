@@ -100,15 +100,18 @@ export default function PsychologistChildrenPage() {
   const fetchChildren = async (isRefreshing = false) => {
     if (!psychologistId) return;
     setError(null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     isRefreshing ? setRefreshing(true) : setLoading(true);
     try {
       const data = await getChildrenByPsychologist(Number(psychologistId));
       // normaliza ids para número quando possível
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const normalized: Child[] = (data || []).map((c: any) => ({
         ...c,
         id: typeof c.id === "string" && /^\d+$/.test(c.id) ? Number(c.id) : c.id,
       }));
       setChildren(normalized);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error(e);
       setError(e?.response?.data?.message || "Erro ao carregar crianças.");
@@ -184,6 +187,7 @@ export default function PsychologistChildrenPage() {
       await deleteChild(childId);
       setChildren((prev) => prev.filter((c) => c.id !== childId));
       toast.success("Criança excluída com sucesso!");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error(e);
       toast.error(e?.response?.data?.message || "Erro ao excluir criança.");
@@ -299,6 +303,7 @@ export default function PsychologistChildrenPage() {
               <select
                 className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={status}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 onChange={(e) => setStatus(e.target.value as any)}
               >
                 <option value="all">Todos os status</option>
@@ -309,6 +314,7 @@ export default function PsychologistChildrenPage() {
               <select
                 className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={gender}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 onChange={(e) => setGender(e.target.value as any)}
               >
                 <option value="all">Todos os gêneros</option>
@@ -320,6 +326,7 @@ export default function PsychologistChildrenPage() {
               <select
                 className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={sort}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 onChange={(e) => setSort(e.target.value as any)}
               >
                 <option value="name_asc">Ordenar: Nome (A→Z)</option>

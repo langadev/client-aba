@@ -70,6 +70,7 @@ export default function MyChildren() {
       );
 
       setChildren(childrenWithPsychologists);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Erro ao carregar filhos:", err);
       setError(err.message || "Erro ao carregar dados dos filhos");

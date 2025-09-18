@@ -49,7 +49,8 @@ const LoginPage: React.FC = () => {
         formData.password
       );
 
-      auth.setUser(user, token);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      auth.setUser(user as any, token);
 
       toast.success("Login realizado com sucesso! Redirecionando...", {
         position: "top-right",
@@ -71,6 +72,7 @@ const LoginPage: React.FC = () => {
             router.push("/");
         }
       }, 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Erro no login:", err);
 

@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -19,8 +20,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {z} from "zod";
 import {
   createChild,
-  getParents,
-  getPsychologists,
 } from "../../../../api/repository/childRepository";
 
 // type Gender = "male" | "female" | "other";
@@ -42,13 +41,13 @@ interface Psychologist {
   specialization: string;
 }
 
-interface ChildFormData {
-  name: string;
-  birthdate: string;
-  gender: Gender;
-  parentId: number;
-  psychologistId?: number;
-}
+// interface ChildFormData {
+//   name: string;
+//   birthdate: string;
+//   gender: Gender;
+//   parentId: number;
+//   psychologistId?: number;
+// }
 
 const childrenSchema = z.object({
   name: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -70,7 +69,6 @@ export default function CreateChildPage() {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
     getValues,
   } = useForm<ChildrenFormData>({
     resolver: zodResolver(childrenSchema),
@@ -86,16 +84,19 @@ export default function CreateChildPage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(true);
-  const [parents, setParents] = useState<Parent[]>([]);
-  const [psychologists, setPsychologists] = useState<Psychologist[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [loadingData, ___] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [parents, ____] = useState<Parent[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [psychologists, _____] = useState<Psychologist[]>([]);
 
 
   const onSubmit = async (data:ChildrenFormData) => {
     
 
     try {
-      await createChild(data);
+      await createChild(data as any);
       toast.success("Criança cadastrada com sucesso!");
       router.back()
     } catch (error: any) {
@@ -262,7 +263,6 @@ export default function CreateChildPage() {
                     <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <select
                       id="parentId"
-                      name="parentId"
                       required
                     {...register("status")}
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"

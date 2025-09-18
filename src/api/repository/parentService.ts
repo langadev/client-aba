@@ -26,6 +26,7 @@ export async function listParentsLite(
       params: { q, limit },
     });
     return res.data as ParentLite[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     // 404 ⇒ segue para fallback. Outros erros, relança.
     if (err?.response?.status && err.response.status !== 404) throw err;
@@ -46,6 +47,7 @@ export async function listParentsLite(
   }>;
 
   // garante que só vem PAI mesmo se o backend esquecer de filtrar
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   list = list.filter(u => (u as any).role === "PAI" || (u as any).role === undefined);
 
   // pesquisa simples no cliente

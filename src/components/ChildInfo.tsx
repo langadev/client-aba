@@ -23,7 +23,6 @@ import {
 
 import {
   getChildByIdWithPsychologists,
-  type Gender,
   type ChildWithPsychologists,
 } from "../api/repository/childRepository";
 import { getGoals } from "../api/repository/goalRepository";
@@ -59,21 +58,21 @@ interface Goal {
   psychologistId: number;
 }
 
-interface Child {
-  id: number;
-  name: string;
-  birthdate: string;
-  gender: Gender;
-  parentId: number;
-  psychologistId?: number;
-  createdAt?: string;
-  updatedAt?: string;
-  psychologistName?: string;
-  parentName?: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-}
+// interface Child {
+//   id: number;
+//   name: string;
+//   birthdate: string;
+//   gender: Gender;
+//   parentId: number;
+//   psychologistId?: number;
+//   createdAt?: string;
+//   updatedAt?: string;
+//   psychologistName?: string;
+//   parentName?: string;
+//   address?: string;
+//   phone?: string;
+//   email?: string;
+// }
 
 /* ============================== Utilidades ============================== */
 
@@ -459,10 +458,11 @@ export default function ChildInfoPage() {
         // 2) Consultas + Metas em paralelo
         const [cons, g] = await Promise.all([
           getConsultationsByChild(Number(id)),
-          getGoals(Number(id)),
+          getGoals(),
         ]);
         setConsultations(cons);
-        setGoalsState(g);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setGoalsState(g as any);
       } catch (e) {
         console.error(e);
         setError("Erro ao carregar dados");
@@ -542,6 +542,7 @@ export default function ChildInfoPage() {
     title: g.title,
     description: g.description,
     targetDate: g.targetDate,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     progress: (g as any).progress ?? percentFromStatus(g.status),
     color: palette[idx % palette.length],
   }));

@@ -51,6 +51,7 @@ const clamp0to100 = (n?: number) => {
 };
 
 const buildGoalPayload = (g: CreateGoalInput) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const payload: any = {
     title: g.title?.trim(),
     description: g.description?.trim() || null,
@@ -85,6 +86,7 @@ export const updateGoal = async (
   updateData: Partial<CreateGoalInput & Omit<Goal, "id" | "createdAt" | "updatedAt">>
 ): Promise<Goal> => {
   // opcional: normalizar campos se vierem (status/progress)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const body: any = { ...updateData };
   if ("status" in body) body.status = normalizeStatus(body.status);
   if ("progress" in body) body.progress = clamp0to100(body.progress);

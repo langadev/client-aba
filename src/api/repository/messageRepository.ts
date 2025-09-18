@@ -37,6 +37,7 @@ export const createOrGetConversation = async (pai: number, psicologo: number) =>
 };
 
 export const getMessages = async (conversationId: number, limit = 50, before?: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any = { limit };
   if (before) params.before = before;
   const res = await API.get(`/chats/conversations/${conversationId}/messages`, {

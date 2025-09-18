@@ -230,6 +230,7 @@ export const listConsultationsLite = async ({
   try {
     const res = await API.get(`/consultations?${qs.toString()}`, getAuthHeaders());
     const rows = Array.isArray(res.data) ? res.data : [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return rows.map((row: any) => ({
       id: Number(row.id),
       date: row.date ?? row.createdAt ?? new Date().toISOString(),
