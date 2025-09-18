@@ -112,7 +112,7 @@ type ConsultationFormValues = z.infer<typeof consultationFormSchema>;
 const goalFormSchema = z.object({
   title: z.string().min(3, "Título muito curto"),
   description: z.string().min(5, "Descrição muito curta"),
-  dueDate: z.string().optional(),
+  dueDate: z.date().optional(),
 });
 type GoalFormValues = z.infer<typeof goalFormSchema>;
 
@@ -162,7 +162,7 @@ export default function Sessions(): JSX.Element {
     formState: { errors: errorsGoal, isSubmitting: creatingGoal },
   } = useForm<GoalFormValues>({
     resolver: zodResolver(goalFormSchema),
-    defaultValues: { title: "", description: "", dueDate: "" },
+    defaultValues: { title: "", description: "", dueDate: new Date() },
   });
 
   /* ========================= Loads ========================= */
@@ -317,7 +317,7 @@ export default function Sessions(): JSX.Element {
 
   const openCreateGoal = () => {
     if (!isPsychologist || !selectedSession) return;
-    resetGoal({ title: "", description: "", dueDate: "" });
+    resetGoal({ title: "", description: "", dueDate: new Date() });
     setGoalModalOpen(true);
   };
 
