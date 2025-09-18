@@ -17,8 +17,12 @@ import {
   RefreshCw,
   MessageCircle,
   Plus,
+  Target as TargetIcon,
+  Menu as MenuIcon,
+  X as CloseIcon,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { cn } from "@/lib/cn";
 
 export default function MyChildren() {
   const [children, setChildren] = useState<ChildWithPsychologists[]>([]);
@@ -26,6 +30,7 @@ export default function MyChildren() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
 
   const fetchChildrenWithPsychologists = async (isRefreshing = false) => {
@@ -55,7 +60,7 @@ export default function MyChildren() {
       // const result = all.filter((c) => c.parentId === Number(user.id));
 
       setChildren(result);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Erro ao carregar filhos:", err);
       setError(err.message || "Erro ao carregar dados dos filhos");
@@ -120,26 +125,43 @@ export default function MyChildren() {
     );
   }
 
+  const isDesktop = true;
   return (
     <div className="space-y-6">
+      <nav
+        aria-label="Navegação principal"
+        className={cn(
+          "bg-white border-b h-16  border-gray-200 w-full flex items-center justify-between px-4",
+          // MOBILE: drawer abaixo do header, com altura certa
+        )}
+      >
+        {/* Cabeçalho dentro da sidebar */}
+        <div>
+          <h1 className="text-base lg:text-lg font-bold text-gray-900">
+            Portal dos Pais
+          </h1>
+          <p className="text-xs text-gray-600">Acompanhamento Terapêutico</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => fetchChildrenWithPsychologists(true)}
+            disabled={refreshing}
+            className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 transition-colors"
+            title="Atualizar dados"
+          >
+            <RefreshCw className={`w-5 h-5 text-gray-600 ${refreshing ? "animate-spin" : ""}`} />
+          </button>
+          <Link
+            href="/parent/children/add"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center text-sm transition-colors"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Adicionar Filho
+          </Link>
+        </div>
+      </nav>
       {/* Ações topo */}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => fetchChildrenWithPsychologists(true)}
-          disabled={refreshing}
-          className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 transition-colors"
-          title="Atualizar dados"
-        >
-          <RefreshCw className={`w-5 h-5 text-gray-600 ${refreshing ? "animate-spin" : ""}`} />
-        </button>
-        <Link
-          href="/parent/children/add"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center text-sm transition-colors"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Adicionar Filho
-        </Link>
-      </div>
 
       {/* Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -214,13 +236,6 @@ export default function MyChildren() {
                           </p>
                         </div>
                       </div>
-                      <Link
-                        href={`/parent/children/edit/${child.id}`}
-                        className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                        title="Editar utilizador"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Link>
                     </div>
 
                     <div className="space-y-2 mb-4">
@@ -249,39 +264,20 @@ export default function MyChildren() {
 
                     <div className="flex gap-2">
                       <Link
-                        href={`/parent/children/edit/${child.id}`}
+                        href={`/parent/children/${child.id}/edit`}
                         className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center text-sm"
                       >
                         <User className="w-4 h-4 mr-1" />
                         Editar
                       </Link>
 
-                      {mainPsy ? (
-                        <>
-                          <Link
-                            href={`parent/dashboard/${child.id}`}
-                            className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 flex items-center justify-center text-sm"
-                          >
-                            <Heart className="w-4 h-4 mr-1" />
-                            Ver Detalhes
-                          </Link>
-                          <Link
-                            href={`/parent/chat/${mainPsy.id}`}
-                            className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 flex items-center justify-center text-sm"
-                          >
-                            <MessageCircle className="w-4 h-4 mr-1" />
-                            Conversar
-                          </Link>
-                        </>
-                      ) : (
-                        <Link
-                          href="/parent/psychologists"
-                          className="flex-1 bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 flex items-center justify-center text-sm"
-                        >
-                          <Heart className="w-4 h-4 mr-1" />
-                          Buscar Psicólogo
-                        </Link>
-                      )}
+                      <Link
+                        href={`parent/children/${child.id}`}
+                        className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 flex items-center justify-center text-sm"
+                      >
+                        <Heart className="w-4 h-4 mr-1" />
+                        Ver Detalhes
+                      </Link>
                     </div>
                   </div>
                 );

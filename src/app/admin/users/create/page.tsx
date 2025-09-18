@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createUser } from "../../../../api/repository/userReporitories";
-import { 
-  ArrowLeft, 
-  Save, 
-  User, 
-  Mail, 
-  Lock, 
-  Phone, 
+import {
+  ArrowLeft,
+  Save,
+  User,
+  Mail,
+  Lock,
+  Phone,
   Calendar,
   Eye,
   EyeOff
@@ -17,7 +17,8 @@ import {
 import { toast } from "react-toastify";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod'
-import {z} from "zod";
+import { z } from "zod";
+import { ErrorText } from "@/components/ErrorText";
 
 // Tipos baseados no schema Zod
 // type Gender = "male" | "female" | "other";
@@ -35,7 +36,7 @@ enum Gender {
   F = "F",
   O = "O",
 }
- const userFormSchema = z.object({
+const userFormSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
@@ -46,15 +47,15 @@ enum Gender {
   }, {
     message: "Data de nascimento inválida",
   }),
-  gender: z.enum([Gender.F,Gender.M,Gender.O],"Selecione um gênero"),
-  role: z.enum([UserRole.PAI,UserRole.MAE,UserRole.FILHO,UserRole.RESPONSAVEL],"Selecione um tipo de usuário"),
+  gender: z.enum([Gender.F, Gender.M, Gender.O], "Selecione um gênero"),
+  role: z.enum([UserRole.PAI, UserRole.MAE, UserRole.FILHO, UserRole.RESPONSAVEL], "Selecione um tipo de usuário"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
   path: ["confirmPassword"],
 });
 
 
- type UserFormData = z.infer<typeof userFormSchema>;
+type UserFormData = z.infer<typeof userFormSchema>;
 
 export default function CreateUserPage() {
   const router = useRouter();
@@ -81,18 +82,18 @@ export default function CreateUserPage() {
 
 
 
-  const onSubmit = async (data:UserFormData) => {
+  const onSubmit = async (data: UserFormData) => {
 
     try {
       // Preparar dados para envio (remover confirmPassword)
-      
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await createUser(data as unknown as any);
-      
+
       toast.success("Usuário criado com sucesso!");
       router.back();
-      
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao criar usuário:", error);
       const errorMessage = error.response?.data?.message || "Erro ao criar usuário. Tente novamente.";
@@ -114,7 +115,7 @@ export default function CreateUserPage() {
             <ArrowLeft className="w-5 h-5 mr-2" />
             Voltar
           </button>
-          
+
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 rounded-lg">
               <User className="w-6 h-6 text-blue-600" />
@@ -142,12 +143,13 @@ export default function CreateUserPage() {
                     <input
                       id="name"
                       type="text"
-                      required
-                       {...register("name")}
+                      {...register("name")}
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Digite o nome completo"
                     />
-                     {errors.name && <span>{errors.name.message}</span>}
+                    <ErrorText
+                      field={errors.name}
+                    />
                   </div>
                 </div>
 
@@ -161,11 +163,12 @@ export default function CreateUserPage() {
                       id="email"
                       type="email"
                       {...register("email")}
-                      required
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="exemplo@email.com"
                     />
-                     {errors.email && <span>{errors.email.message}</span>}
+                    <ErrorText
+                      field={errors.email}
+                    />
                   </div>
                 </div>
 
@@ -175,7 +178,6 @@ export default function CreateUserPage() {
                   </label>
                   <select
                     id="role"
-                    required
                     {...register("role")}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
@@ -183,7 +185,9 @@ export default function CreateUserPage() {
                     <option value="PSICOLOGO">Psicólogo</option>
                     <option value="ADMIN">Administrador</option>
                   </select>
-                  {errors.role && <span>{errors.role.message}</span>}
+                  <ErrorText
+                    field={errors.role}
+                  />
                 </div>
 
                 <div>
@@ -200,7 +204,9 @@ export default function CreateUserPage() {
                     <option value="female">Feminino</option>
                     <option value="other">Outro</option>
                   </select>
-                          {errors.gender && <span>{errors.gender.message}</span>}
+                  <ErrorText
+                    field={errors.gender}
+                  />
                 </div>
               </div>
             </div>
@@ -219,10 +225,12 @@ export default function CreateUserPage() {
                       id="phone"
                       type="tel"
                       {...register("phone")}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="(+257) 84 123 4567"
-                      />
-                      {errors.phone && <span>{errors.phone.message}</span>} 
+                    />
+                    <ErrorText
+                      field={errors.phone}
+                    />
                   </div>
                 </div>
 
@@ -235,11 +243,13 @@ export default function CreateUserPage() {
                     <input
                       id="birthdate"
                       type="date"
-                       {...register("birthdate")}
+                      {...register("birthdate")}
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
+                    />
                   </div>
-                      {errors.birthdate && <span>{errors.birthdate.message}</span>}
+                  <ErrorText
+                    field={errors.birthdate}
+                  />
                 </div>
               </div>
             </div>
@@ -257,11 +267,9 @@ export default function CreateUserPage() {
                     <input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      required
                       {...register("password")}
                       className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Mínimo 6 caracteres"
-                      minLength={6}
                     />
                     <button
                       type="button"
@@ -274,7 +282,7 @@ export default function CreateUserPage() {
                         <Eye className="w-5 h-5 text-gray-400" />
                       )}
                     </button>
-                     {errors.password && <span>{errors.password.message}</span>}
+                    <ErrorText field={errors.password} />
                   </div>
                 </div>
 
@@ -287,7 +295,6 @@ export default function CreateUserPage() {
                     <input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
-                      required
                       {...register("confirmPassword")}
                       className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Digite novamente a senha"
@@ -304,7 +311,7 @@ export default function CreateUserPage() {
                         <Eye className="w-5 h-5 text-gray-400" />
                       )}
                     </button>
-                       {errors.confirmPassword && <span>{errors.confirmPassword.message}</span>}
+                    {errors.confirmPassword && <span>{errors.confirmPassword.message}</span>}
                   </div>
                 </div>
               </div>

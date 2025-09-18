@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import Reports from "@/components/Reports";
-import Appointments from "@/components/Appointments";
+import {Appointments} from "@/components/Appointments";
 import Billing from "@/components/Billing";
 import Messages from "@/components/Message";
 import ManageChildren from "./dashboardsections/ManageChildren";
@@ -27,6 +27,7 @@ import ManageConsultation from "./dashboardsections/ManageConsultation";
 
 import { useAuthStore } from "@/store/userStore";
 import { cn } from "@/lib/cn";
+import { useRouter } from "next/navigation";
 
 /* =========================================================
    Tipagem das telas
@@ -48,7 +49,7 @@ const AdminSidebar = (): JSX.Element => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("dashboard");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout } = useAuthStore();
-
+  const router = useRouter();
   // trava o scroll quando o drawer está aberto
   useEffect(() => {
     document.body.classList.toggle("overflow-hidden", isMobileMenuOpen);
@@ -199,7 +200,10 @@ const AdminSidebar = (): JSX.Element => {
               </div>
             </div>
             <button
-              onClick={logout}
+              onClick={()=>{
+                logout();
+                router.push("/login");
+              }}
               className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
             >
               <LogOut size={16} className="mr-3" />

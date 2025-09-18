@@ -45,6 +45,7 @@ export interface CreateInvoiceBody {
 // Lista
 export const listInvoices = async (): Promise<InvoiceDTO[]> => {
   const res = await API.get("/invoices", getAuthHeaders());
+  console.log("Tal de invoice:", res.data);
   return res.data as InvoiceDTO[];
 };
 

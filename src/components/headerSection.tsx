@@ -16,14 +16,14 @@ export const HeaderSection = (): JSX.Element => {
     if (!user) return;
     switch (user.role) {
       case "ADMIN":
-        router.push(`/admin/users/profile/${user.id}`);
+        router.push(`/profile/${user.id}`);
         break;
       case "PAI":
-        router.push(`/pai/profile/${user.id}`);
+        router.push(`/profile/${user.id}`);
         break;
-  // manter conforme a store
+      // manter conforme a store
       case "PSICOLOGO": // fallback caso corrijas o nome
-        router.push(`/terapeuta/profile/${user.id}`);
+        router.push(`/profile/${user.id}`);
         break;
       default:
         console.warn("Role não reconhecida:", user.role);

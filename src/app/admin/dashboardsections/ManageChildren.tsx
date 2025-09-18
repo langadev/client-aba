@@ -15,6 +15,7 @@ import {
   RefreshCw,
   Download as DownloadIcon,
   Loader,
+  Power,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import {
@@ -22,6 +23,7 @@ import {
   deleteChild as apiDeleteChild,
   updateChild as apiUpdateChild,
 } from "../../../api/repository/childRepository";
+import { useRouter } from "next/navigation";
 
 // Tipos baseados no schema Zod
 type Gender = "male" | "female" | "other";
@@ -57,6 +59,7 @@ export default function ManageChildren() {
     gender: "all",
     hasPsychologist: "all",
   });
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -73,7 +76,7 @@ export default function ManageChildren() {
       console.error("Erro ao buscar crianças:", err);
       setError(
         err?.response?.data?.message ||
-          "Erro ao carregar crianças. Tente novamente."
+        "Erro ao carregar crianças. Tente novamente."
       );
     } finally {
       setIsLoading(false);
@@ -169,11 +172,11 @@ export default function ManageChildren() {
       : "bg-gray-100 text-gray-800";
 
   const getGenderColor = (gender: Gender) =>
-    ({
-      male: "bg-blue-100 text-blue-800",
-      female: "bg-pink-100 text-pink-800",
-      other: "bg-purple-100 text-purple-800",
-    }[gender]);
+  ({
+    male: "bg-blue-100 text-blue-800",
+    female: "bg-pink-100 text-pink-800",
+    other: "bg-purple-100 text-purple-800",
+  }[gender]);
 
   const exportToCSV = () => {
     const headers = [
@@ -298,7 +301,7 @@ export default function ManageChildren() {
       {/* Filtros e Ações */}
       <div className="bg-white rounded-xl p-4 shadow-sm border">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex flex-col sm:flex-row gap-3 flex-1">
+          <div className="flex flex-col-reverse min-[960px]:flex-row gap-3 flex-1">
             <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -309,63 +312,59 @@ export default function ManageChildren() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            <div className="flex items-center justify-between ">
+              <div className="flex items-center justify-center gap-2">
+                <select
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={filters.status}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, status: e.target.value as any }))
+                  }
+                >
+                  <option value="all">Todos os status</option>
+                  <option value="active">Ativo</option>
+                  <option value="inactive">Inativo</option>
+                </select>
 
-            <select
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={filters.status}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, status: e.target.value as any }))
-              }
-            >
-              <option value="all">Todos os status</option>
-              <option value="active">Ativo</option>
-              <option value="inactive">Inativo</option>
-            </select>
+                <select
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={filters.gender}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, gender: e.target.value as any }))
+                  }
+                >
+                  <option value="all">Todos os gêneros</option>
+                  <option value="male">Masculino</option>
+                  <option value="female">Feminino</option>
+                  <option value="other">Outro</option>
+                </select>
 
-            <select
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={filters.gender}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, gender: e.target.value as any }))
-              }
-            >
-              <option value="all">Todos os gêneros</option>
-              <option value="male">Masculino</option>
-              <option value="female">Feminino</option>
-              <option value="other">Outro</option>
-            </select>
+                <select
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={filters.hasPsychologist}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      hasPsychologist: e.target.value as any,
+                    }))
+                  }
+                >
+                  <option value="all">Todos</option>
+                  <option value="with">Com psicólogo</option>
+                  <option value="without">Sem psicólogo</option>
+                </select>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={exportToCSV}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center text-sm transition-colors"
+                >
+                  <DownloadIcon className="w-4 h-4 mr-2" />
+                  Exportar CSV
+                </button>
+              </div>
+            </div>
 
-            <select
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={filters.hasPsychologist}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  hasPsychologist: e.target.value as any,
-                }))
-              }
-            >
-              <option value="all">Todos</option>
-              <option value="with">Com psicólogo</option>
-              <option value="without">Sem psicólogo</option>
-            </select>
-          </div>
-
-          <div className="flex gap-2">
-            <Link
-              href="/admin/children/create"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center text-sm transition-colors"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Criança
-            </Link>
-            <button
-              onClick={exportToCSV}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center text-sm transition-colors"
-            >
-              <DownloadIcon className="w-4 h-4 mr-2" />
-              Exportar CSV
-            </button>
           </div>
         </div>
       </div>
@@ -373,7 +372,7 @@ export default function ManageChildren() {
       {/* Tabela */}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="min-w-full table-auto">
             <thead className="bg-gray-50">
               <tr>
                 {["Criança", "Informações", "Responsável", "Psicólogo", "Status", "Ações"].map(
@@ -393,7 +392,7 @@ export default function ManageChildren() {
                 <tr key={child.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-4">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full max-[840px]:hidden flex items-center justify-center">
                         <Baby className="w-5 h-5 text-blue-600" />
                       </div>
                       <div className="ml-3">
@@ -462,27 +461,25 @@ export default function ManageChildren() {
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleStatusToggle(child.id)}
-                        className={`p-2 rounded-lg transition-colors ${
-                          child.status === "active"
-                            ? "bg-green-100 text-green-600 hover:bg-green-200"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`}
+                        className={`p-2 rounded-lg transition-colors `}
                         title={
                           child.status === "active"
                             ? "Desativar criança"
                             : "Ativar criança"
                         }
                       >
-                        {child.status === "active" ? "Desativar" : "Ativar"}
+                        <Power
+                          className={`w-4 h-4 ${child.status === "active" ? "text-green-500" : "text-red-500"}`}
+                        />
                       </button>
 
-                      <Link
-                        href={`/admin/children/edit/${child.id}`}
+                      <button
+                        onClick={() => router.push(`/admin/children/${child.id}/edit`)}
                         className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                         title="Editar criança"
                       >
                         <Edit className="w-4 h-4" />
-                      </Link>
+                      </button>
 
                       <button
                         onClick={() => handleDeleteChild(child.id)}

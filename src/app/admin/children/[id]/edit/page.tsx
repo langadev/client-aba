@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import z from "zod";
-import { useRouter } from 'next/router';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { addPsychologistToChild, getChildById, getChildPsychologists, getParents, getPsychologists, removePsychologistFromChild, updateChild } from "@/api/repository/childRepository";
 import { ArrowLeft, Baby, Cake, Calendar, Heart, Loader, Save, User, Users } from "lucide-react";
-enum Gender{
-  male,
-  female,
-  other
+enum Gender {
+  male = "male",
+  female = "female",
+  other = "other"
 }
 
 interface Parent {
@@ -45,12 +44,11 @@ const childrenSchema = z.object({
   gender: z.enum(Gender),
   parentId: z.number().min(1, "Selecione um responsável"),
   psychologistId: z.number().optional(),
-   status: z.enum(
+  status: z.enum(
     ["active", "inactive"],),
 })
 type ChildrenFormData = z.infer<typeof childrenSchema>;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function EditChildPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
@@ -88,7 +86,6 @@ export default function EditChildPage() {
     const fetchData = async () => {
       if (!id) {
         toast.error("ID da criança não especificado");
-        router.push("/parent");
         return;
       }
 
@@ -116,14 +113,13 @@ export default function EditChildPage() {
         const errorMessage =
           error?.response?.data?.message || "Erro ao carregar dados necessários.";
         toast.error(errorMessage);
-        router.push("/parent");
       } finally {
         setLoadingData(false);
       }
     };
 
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, router]);
 
 
@@ -186,12 +182,12 @@ export default function EditChildPage() {
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-    return `${ age } anos`;
+    return `${age} anos`;
   };
 
   const getGenderLabel = (gender: Gender): string => {
-    if(Gender.female==gender) return "Feminino";
-    if(Gender.male==gender) return "Masculino";
+    if (Gender.female == gender) return "Feminino";
+    if (Gender.male == gender) return "Masculino";
     return "Outro";
   };
 
@@ -255,7 +251,7 @@ export default function EditChildPage() {
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Digite o nome completo"
                     />
-                     {errors.name && <span>{errors.name.message}</span>}
+                    {errors.name && <span>{errors.name.message}</span>}
                   </div>
                 </div>
 
@@ -273,7 +269,7 @@ export default function EditChildPage() {
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       max={new Date().toISOString().split("T")[0]}
                     />
-                     {errors.birthdate && <span>{errors.birthdate.message}</span>}
+                    {errors.birthdate && <span>{errors.birthdate.message}</span>}
                   </div>
                   {getValues("birthdate") && (
                     <p className="text-sm text-green-600 mt-1">
@@ -358,14 +354,14 @@ export default function EditChildPage() {
                     <select
                       id="psychologistId"
                       {...register("psychologistId", { valueAsNumber: true })}
-                      
+
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                     >
                       <option value="">Selecione um psicólogo</option>
                       {psychologists.map((psychologist) => (
                         <option key={psychologist.id} value={psychologist.id}>
                           {psychologist.name}
-                          {psychologist.specialization ? ` - ${ psychologist.specialization }` : ""}
+                          {psychologist.specialization ? ` - ${psychologist.specialization}` : ""}
                         </option>
                       ))}
                     </select>
@@ -419,7 +415,7 @@ export default function EditChildPage() {
                     .filter((p) => !linkedPsychologists.some((lp) => lp.id === p.id)) // evita duplicados
                     .map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name} {p.specialization ? `– ${ p.specialization }` : ""}
+                        {p.name} {p.specialization ? `– ${p.specialization}` : ""}
                       </option>
                     ))}
                 </select>
@@ -529,7 +525,7 @@ export default function EditChildPage() {
                 <span className="font-medium text-gray-700">Status:</span>
                 <p className="text-gray-900">
                   <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${ getValues("status") === "active"
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getValues("status") === "active"
                       ? "bg-green-100 text-green-800"
                       : "bg-gray-100 text-gray-800"
                       }`}

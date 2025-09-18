@@ -124,7 +124,7 @@ export default function PsychologistDashboard(): JSX.Element {
           >
             <div>
               <h1 className="text-base lg:text-lg font-bold text-gray-900">
-                Portal do Psicólogo
+              Portal do Terapeuta
               </h1>
               <p className="text-xs text-gray-600">Gestão clínica</p>
             </div>

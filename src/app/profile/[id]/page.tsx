@@ -1,9 +1,8 @@
-// app/users/[id]/edit/page.tsx
-"use client";
-
-import React, { useEffect,    useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { toast } from "react-toastify";
+"use client"
+// src/pages/users/EditUserPage.tsx
+import React, { useEffect, useMemo, useState } from "react";
+import { getUserById, updateUser } from "@/api/repository/userReporitories";
+import { useAuthStore } from "@/store/userStore";
 import {
   ArrowLeft,
   Save,
@@ -21,16 +20,14 @@ import {
   Globe,
   Plus,
 } from "lucide-react";
-
-import { useAuthStore } from "@/store/userStore";
-import { getUserById, updateUser } from "../../api/repository/userReporitories";
+import { toast } from "react-toastify";
 
 // LOCATION
 import {
   getLocation,
   upsertLocation,
   type LocationDTO,
-} from "../../api/repository/locationService";
+} from "@/api/repository/locationService";
 
 // CHILDREN
 import {
@@ -39,19 +36,20 @@ import {
   createChild,
   type Child,
   type Gender as ChildGender,
-} from "../../api/repository/childRepository";
+} from "@/api/repository/childRepository";
 
 // HEALTH / SCHOOL
 import {
   getChildHealth,
   upsertChildHealth,
   type ChildHealthDTO,
-} from "../../api/repository/childHealthService";
+} from "@/api/repository/childHealthService";
 import {
   getChildSchool,
   upsertChildSchool,
   type ChildSchoolDTO,
-} from "../../api/repository/childSchoolService";
+} from "@/api/repository/childSchoolService";
+import { useParams, useRouter,  } from "next/navigation";
 
 // Tipos
 type Gender = "male" | "female" | "other";
@@ -123,10 +121,10 @@ const roleLabel = (r?: UserRole) =>
   r === "PAI"
     ? "Pai/Responsável"
     : r === "PSICOLOGO"
-    ? "Psicólogo"
-    : r === "ADMIN"
-    ? "Administrador"
-    : "Utilizador";
+      ? "Psicólogo"
+      : r === "ADMIN"
+        ? "Administrador"
+        : "Utilizador";
 
 const formatDateTime = (iso?: string) =>
   iso ? new Date(iso).toLocaleString() : "—";
@@ -134,10 +132,9 @@ const formatDateTime = (iso?: string) =>
 const formatDateOnly = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString() : "—";
 
-export default function EditUserPage() {
-  const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const id = params?.id;
+const EditUserPage: React.FC = () => {
+  const router = useRouter()
+    const { id } = useParams();
 
   // auth & redirecionamento por role
   const auth = useAuthStore();
@@ -145,9 +142,9 @@ export default function EditUserPage() {
   const loggedUserId = Number(auth.user?.id);
 
   const redirectByRole = () => {
-    if (userRole === "ADMIN") router.push("/admin/users");
+    if (userRole === "ADMIN") router.push("/admin");
     else if (userRole === "PAI") router.push("/parent");
-    else if (userRole === "PSICOLOGO") router.push("/psychologist/dashboard");
+    else if (userRole === "PSICOLOGO") router.push("/therapist");
     else router.push("/");
   };
 
@@ -170,17 +167,14 @@ export default function EditUserPage() {
   });
 
   // LOCATION
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setLocation] = useState<LocationDTO | null>(null);
+  const [location, setLocation] = useState<LocationDTO | null>(null);
 
   // FILHOS
   const [children, setChildren] = useState<Child[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<number | null>(null);
 
   // SAÚDE / EDUCAÇÃO (dados do filho selecionado)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [childHealth, setChildHealth] = useState<ChildHealthDTO | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [childSchool, setChildSchool] = useState<ChildSchoolDTO | null>(null);
 
   // Sucesso inline nas abas
@@ -218,6 +212,7 @@ export default function EditUserPage() {
   });
 
   // header helpers
+  const iniciais = useMemo(() => getInitials(form.name), [form.name]);
 
   // carregar utilizador + localização + filhos/pacientes
   useEffect(() => {
@@ -227,8 +222,9 @@ export default function EditUserPage() {
       setLoadingPage(true);
       try {
         // USER
-        const res = await getUserById(id) ;
-        const data = res
+        const res = await getUserById(id as string);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data: any = (res as any).data ?? res;
 
         // LOCATION
         let loc: LocationDTO | null = null;
@@ -246,6 +242,7 @@ export default function EditUserPage() {
           } else if (userRole === "PSICOLOGO" && Number(id) === loggedUserId) {
             kids = await getChildrenByPsychologist(loggedUserId);
           } else {
+            // outros papéis ou perfil de terceiros: não carrega
             kids = [];
           }
         } catch {
@@ -253,7 +250,7 @@ export default function EditUserPage() {
         }
 
         if (cancelado) return;
-        console.log(data)
+
         setForm((prev) => ({
           ...prev,
           id: data?.id ?? prev.id,
@@ -265,8 +262,8 @@ export default function EditUserPage() {
           role: (data?.role as UserRole) ?? prev.role,
           isActive: typeof data?.isActive === "boolean" ? data.isActive : true,
           // datas
-          // createdAt: data?.createdAt ?? prev.createdAt,
-          // updatedAt: data?.updatedAt ?? prev.updatedAt,
+          createdAt: data?.createdAt ?? prev.createdAt,
+          updatedAt: data?.updatedAt ?? prev.updatedAt,
           lastLogin: data?.lastLogin ?? prev.lastLogin,
           // location
           street: loc?.street ?? prev.street,
@@ -289,7 +286,7 @@ export default function EditUserPage() {
         setChildren(kids);
         setSelectedChildId(kids.length ? kids[0].id : null);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err:any) {
+      } catch (err: any) {
         console.error(err);
         toast.error(
           err?.response?.data?.message || "Erro ao carregar dados do utilizador."
@@ -303,7 +300,7 @@ export default function EditUserPage() {
     return () => {
       cancelado = true;
     };
-  }, [id, userRole, loggedUserId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [id, userRole, loggedUserId]);
 
   // Carregar saúde/escola do filho selecionado
   useEffect(() => {
@@ -312,6 +309,7 @@ export default function EditUserPage() {
       if (!selectedChildId) {
         setChildHealth(null);
         setChildSchool(null);
+        // limpar forms
         setHealthForm({
           childId: 0,
           allergies: "",
@@ -343,6 +341,7 @@ export default function EditUserPage() {
         setChildHealth(h);
         setChildSchool(s);
 
+        // pré-preenche os formulários com o que veio
         setHealthForm({
           childId: selectedChildId,
           allergies: h?.allergies ?? "",
@@ -380,7 +379,8 @@ export default function EditUserPage() {
   const setField = (
     name: keyof UserFormData,
     value: string | UserFormData[keyof UserFormData]
-  ) => setForm((p) => ({ ...p, [name]: value}));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ) => setForm((p) => ({ ...p, [name]: value as any }));
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -411,7 +411,8 @@ export default function EditUserPage() {
     setSalvando(true);
     try {
       // 1) Atualiza usuário
-      const payload = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const payload: any = {
         name: form.name,
         email: form.email,
         phone: form.phone,
@@ -431,11 +432,11 @@ export default function EditUserPage() {
       };
 
       if (querAlterarSenha) {
-        // payload.oldPassword = form.oldPassword;
-        // payload.password = form.newPassword;
+        payload.oldPassword = form.oldPassword;
+        payload.password = form.newPassword;
       }
 
-      await updateUser(id!, payload);
+      await updateUser(id as string, payload);
 
       // 2) Upsert de localização
       const uid = Number(id);
@@ -448,7 +449,8 @@ export default function EditUserPage() {
           postalCode: form.postalCode,
           country: form.country,
           timezone: form.timezone,
-          preferredContactMethod: (form.contactMethod) || undefined,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          preferredContactMethod: (form.contactMethod as any) || undefined,
         };
         await upsertLocation(uid, locPayload);
       }
@@ -456,11 +458,11 @@ export default function EditUserPage() {
       toast.success("Utilizador atualizado com sucesso!");
       redirectByRole();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err:any) {
+    } catch (err: any) {
       console.error(err);
       toast.error(
         err?.response?.data?.message ||
-          "Falha ao atualizar utilizador. Verifique os dados."
+        "Falha ao atualizar utilizador. Verifique os dados."
       );
     } finally {
       setSalvando(false);
@@ -469,12 +471,14 @@ export default function EditUserPage() {
 
   // salvar saúde (aba saúde) – apenas PAI
   const saveHealth = async () => {
-    if (userRole !== "PAI") return;
+    if (userRole !== "PAI") return; // psicólogo não pode editar
     try {
       if (!selectedChildId) {
         toast.info("Selecione uma criança primeiro.");
         return;
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const isCreate = !childHealth;
       const payload = {
         allergies: healthForm.allergies || null,
         diagnoses: healthForm.diagnoses || null,
@@ -488,7 +492,7 @@ export default function EditUserPage() {
       setSuccessHealth("As informações de saúde foram guardadas com sucesso.");
       setTimeout(() => setSuccessHealth(null), 3500);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e:any) {
+    } catch (e: any) {
       console.error(e);
       toast.error(e?.response?.data?.message || "Erro ao guardar saúde.");
     }
@@ -496,12 +500,14 @@ export default function EditUserPage() {
 
   // salvar educação (aba educacao) – apenas PAI
   const saveSchool = async () => {
-    if (userRole !== "PAI") return;
+    if (userRole !== "PAI") return; // psicólogo não pode editar
     try {
       if (!selectedChildId) {
         toast.info("Selecione uma criança primeiro.");
         return;
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const isCreate = !childSchool;
       const payload = {
         schoolName: schoolForm.schoolName || null,
         grade: schoolForm.grade || null,
@@ -520,10 +526,10 @@ export default function EditUserPage() {
       toast.success("Informações de educação guardadas.");
       setSuccessSchool("As informações escolares foram guardadas com sucesso.");
       setTimeout(() => setSuccessSchool(null), 3500);
-    } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
       console.error(e);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      toast.error((e as any)?.response?.data?.message || "Erro ao guardar educação.");
+      toast.error(e?.response?.data?.message || "Erro ao guardar educação.");
     }
   };
 
@@ -542,9 +548,10 @@ export default function EditUserPage() {
         name: newChild.name,
         birthdate: newChild.birthdate,
         gender: newChild.gender as ChildGender,
-        parentId: loggedUserId,
+        parentId: loggedUserId, // do utilizador logado
       };
-      const created = await createChild(payload);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const created = await createChild(payload as any);
       toast.success("Filho adicionado com sucesso.");
       setOpenAddChild(false);
       // atualiza lista
@@ -557,15 +564,16 @@ export default function EditUserPage() {
       // reset form
       setNewChild({ name: "", birthdate: "", gender: "" });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e:any) {
+    } catch (e: any) {
       console.error(e);
       toast.error(e?.response?.data?.message || "Erro ao adicionar filho.");
     }
   };
 
-  // const currentChild = selectedChildId
-  //   ? children.find((c) => c.id === selectedChildId) || null
-  //   : null;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const currentChild = selectedChildId
+    ? children.find((c) => c.id === selectedChildId) || null
+    : null;
 
   const isPsychologist = userRole === "PSICOLOGO";
   const isParent = userRole === "PAI";
@@ -591,7 +599,7 @@ export default function EditUserPage() {
           <ArrowLeft className="w-5 h-5 mr-2" />
           Voltar
         </button>
-
+    <h1>Woah, id numero : {id}</h1>
         {/* HEADER */}
         <div className="bg-white rounded-2xl shadow-sm border p-5">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -627,15 +635,9 @@ export default function EditUserPage() {
 
             {/* Datas */}
             <div className="text-xs text-gray-600">
-              <div>
-                <strong>Criado em:</strong> {formatDateTime(form.createdAt)}
-              </div>
-              <div>
-                <strong>Atualizado em:</strong> {formatDateTime(form.updatedAt)}
-              </div>
-              <div>
-                <strong>Último login:</strong> {formatDateTime(form.lastLogin)}
-              </div>
+              <div><strong>Criado em:</strong> {formatDateTime(form.createdAt)}</div>
+              <div><strong>Atualizado em:</strong> {formatDateTime(form.updatedAt)}</div>
+              <div><strong>Último login:</strong> {formatDateTime(form.lastLogin)}</div>
             </div>
           </div>
 
@@ -652,11 +654,10 @@ export default function EditUserPage() {
                 <button
                   key={t.k}
                   onClick={() => setAbaAtiva(t.k as TabKey)}
-                  className={`py-3 text-sm border-b-2 -mb-px ${
-                    abaAtiva === t.k
+                  className={`py-3 text-sm border-b-2 -mb-px ${abaAtiva === t.k
                       ? "border-blue-600 text-blue-700 font-semibold"
                       : "border-transparent text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   {t.label}
                 </button>
@@ -700,7 +701,9 @@ export default function EditUserPage() {
                         <input
                           className="w-full px-3 py-2 border rounded-lg"
                           value={form.preferredName || ""}
-                          onChange={(e) => setField("preferredName", e.target.value)}
+                          onChange={(e) =>
+                            setField("preferredName", e.target.value)
+                          }
                         />
                       </div>
 
@@ -722,7 +725,9 @@ export default function EditUserPage() {
                         <select
                           className="w-full px-3 py-2 border rounded-lg"
                           value={form.gender || ""}
-                          onChange={(e) => setField("gender", e.target.value as Gender)}
+                          onChange={(e) =>
+                            setField("gender", e.target.value as Gender)
+                          }
                         >
                           <option value="">Selecione…</option>
                           <option value="male">Masculino</option>
@@ -770,7 +775,9 @@ export default function EditUserPage() {
                         <input
                           className="w-full px-3 py-2 border rounded-lg"
                           value={form.secondaryPhone || ""}
-                          onChange={(e) => setField("secondaryPhone", e.target.value)}
+                          onChange={(e) =>
+                            setField("secondaryPhone", e.target.value)
+                          }
                         />
                       </div>
 
@@ -1097,11 +1104,10 @@ export default function EditUserPage() {
                     {children.map((c) => (
                       <div
                         key={c.id}
-                        className={`p-4 rounded-lg border cursor-pointer ${
-                          selectedChildId === c.id
+                        className={`p-4 rounded-lg border cursor-pointer ${selectedChildId === c.id
                             ? "border-blue-600 bg-blue-50/30"
                             : "border-gray-200 hover:bg-gray-50"
-                        }`}
+                          }`}
                         onClick={() => setSelectedChildId(c.id)}
                       >
                         <div className="flex items-center gap-3">
@@ -1149,11 +1155,10 @@ export default function EditUserPage() {
                         <button
                           key={c.id}
                           onClick={() => setSelectedChildId(c.id)}
-                          className={`px-3 py-1.5 rounded-lg border text-sm ${
-                            selectedChildId === c.id
+                          className={`px-3 py-1.5 rounded-lg border text-sm ${selectedChildId === c.id
                               ? "border-blue-600 bg-blue-50 text-blue-700"
                               : "border-gray-200 hover:bg-gray-50"
-                          }`}
+                            }`}
                         >
                           {c.name}
                         </button>
@@ -1167,13 +1172,14 @@ export default function EditUserPage() {
                           <label className="block text-sm mb-1">Alergias</label>
                           <textarea
                             disabled={isPsychologist}
-                            className={`w-full border rounded-lg px-3 py-2 ${
-                              isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full border rounded-lg px-3 py-2 ${isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""}`}
                             rows={2}
                             value={healthForm.allergies || ""}
                             onChange={(e) =>
-                              setHealthForm((p) => ({ ...p, allergies: e.target.value }))
+                              setHealthForm((p) => ({
+                                ...p,
+                                allergies: e.target.value,
+                              }))
                             }
                           />
                         </div>
@@ -1181,13 +1187,14 @@ export default function EditUserPage() {
                           <label className="block text-sm mb-1">Medicação</label>
                           <textarea
                             disabled={isPsychologist}
-                            className={`w-full border rounded-lg px-3 py-2 ${
-                              isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full border rounded-lg px-3 py-2 ${isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""}`}
                             rows={2}
                             value={healthForm.medications || ""}
                             onChange={(e) =>
-                              setHealthForm((p) => ({ ...p, medications: e.target.value }))
+                              setHealthForm((p) => ({
+                                ...p,
+                                medications: e.target.value,
+                              }))
                             }
                           />
                         </div>
@@ -1195,13 +1202,14 @@ export default function EditUserPage() {
                           <label className="block text-sm mb-1">Diagnósticos</label>
                           <textarea
                             disabled={isPsychologist}
-                            className={`w-full border rounded-lg px-3 py-2 ${
-                              isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full border rounded-lg px-3 py-2 ${isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""}`}
                             rows={2}
                             value={healthForm.diagnoses || ""}
                             onChange={(e) =>
-                              setHealthForm((p) => ({ ...p, diagnoses: e.target.value }))
+                              setHealthForm((p) => ({
+                                ...p,
+                                diagnoses: e.target.value,
+                              }))
                             }
                           />
                         </div>
@@ -1209,13 +1217,14 @@ export default function EditUserPage() {
                           <label className="block text-sm mb-1">Notas</label>
                           <textarea
                             disabled={isPsychologist}
-                            className={`w-full border rounded-lg px-3 py-2 ${
-                              isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full border rounded-lg px-3 py-2 ${isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""}`}
                             rows={2}
                             value={healthForm.notes || ""}
                             onChange={(e) =>
-                              setHealthForm((p) => ({ ...p, notes: e.target.value }))
+                              setHealthForm((p) => ({
+                                ...p,
+                                notes: e.target.value,
+                              }))
                             }
                           />
                         </div>
@@ -1270,11 +1279,10 @@ export default function EditUserPage() {
                         <button
                           key={c.id}
                           onClick={() => setSelectedChildId(c.id)}
-                          className={`px-3 py-1.5 rounded-lg border text-sm ${
-                            selectedChildId === c.id
+                          className={`px-3 py-1.5 rounded-lg border text-sm ${selectedChildId === c.id
                               ? "border-blue-600 bg-blue-50 text-blue-700"
                               : "border-gray-200 hover:bg-gray-50"
-                          }`}
+                            }`}
                         >
                           {c.name}
                         </button>
@@ -1288,12 +1296,13 @@ export default function EditUserPage() {
                           <label className="block text-sm mb-1">Escola</label>
                           <input
                             disabled={isPsychologist}
-                            className={`w-full border rounded-lg px-3 py-2 ${
-                              isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full border rounded-lg px-3 py-2 ${isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""}`}
                             value={schoolForm.schoolName || ""}
                             onChange={(e) =>
-                              setSchoolForm((p) => ({ ...p, schoolName: e.target.value }))
+                              setSchoolForm((p) => ({
+                                ...p,
+                                schoolName: e.target.value,
+                              }))
                             }
                           />
                         </div>
@@ -1301,12 +1310,13 @@ export default function EditUserPage() {
                           <label className="block text-sm mb-1">Ano/Turma</label>
                           <input
                             disabled={isPsychologist}
-                            className={`w-full border rounded-lg px-3 py-2 ${
-                              isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full border rounded-lg px-3 py-2 ${isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""}`}
                             value={schoolForm.grade || ""}
                             onChange={(e) =>
-                              setSchoolForm((p) => ({ ...p, grade: e.target.value }))
+                              setSchoolForm((p) => ({
+                                ...p,
+                                grade: e.target.value,
+                              }))
                             }
                           />
                         </div>
@@ -1314,12 +1324,13 @@ export default function EditUserPage() {
                           <label className="block text-sm mb-1">Ano letivo (rótulo)</label>
                           <input
                             disabled={isPsychologist}
-                            className={`w-full border rounded-lg px-3 py-2 ${
-                              isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full border rounded-lg px-3 py-2 ${isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""}`}
                             value={schoolForm.yearLabel || ""}
                             onChange={(e) =>
-                              setSchoolForm((p) => ({ ...p, yearLabel: e.target.value }))
+                              setSchoolForm((p) => ({
+                                ...p,
+                                yearLabel: e.target.value,
+                              }))
                             }
                           />
                         </div>
@@ -1327,12 +1338,13 @@ export default function EditUserPage() {
                           <label className="block text-sm mb-1">Professor(a)</label>
                           <input
                             disabled={isPsychologist}
-                            className={`w-full border rounded-lg px-3 py-2 ${
-                              isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full border rounded-lg px-3 py-2 ${isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""}`}
                             value={schoolForm.teacherName || ""}
                             onChange={(e) =>
-                              setSchoolForm((p) => ({ ...p, teacherName: e.target.value }))
+                              setSchoolForm((p) => ({
+                                ...p,
+                                teacherName: e.target.value,
+                              }))
                             }
                           />
                         </div>
@@ -1344,7 +1356,10 @@ export default function EditUserPage() {
                             disabled={isPsychologist}
                             checked={!!schoolForm.iepActive}
                             onChange={(e) =>
-                              setSchoolForm((p) => ({ ...p, iepActive: e.target.checked }))
+                              setSchoolForm((p) => ({
+                                ...p,
+                                iepActive: e.target.checked,
+                              }))
                             }
                           />
                           <label htmlFor="iepActive" className="text-sm">
@@ -1392,13 +1407,14 @@ export default function EditUserPage() {
                           <label className="block text-sm mb-1">Notas IEP</label>
                           <textarea
                             disabled={isPsychologist}
-                            className={`w-full border rounded-lg px-3 py-2 ${
-                              isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full border rounded-lg px-3 py-2 ${isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""}`}
                             rows={2}
                             value={schoolForm.iepNotes || ""}
                             onChange={(e) =>
-                              setSchoolForm((p) => ({ ...p, iepNotes: e.target.value }))
+                              setSchoolForm((p) => ({
+                                ...p,
+                                iepNotes: e.target.value,
+                              }))
                             }
                           />
                         </div>
@@ -1412,9 +1428,7 @@ export default function EditUserPage() {
                               <div key={idx} className="flex gap-2">
                                 <input
                                   disabled={isPsychologist}
-                                  className={`flex-1 border rounded-lg px-3 py-2 ${
-                                    isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""
-                                  }`}
+                                  className={`flex-1 border rounded-lg px-3 py-2 ${isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""}`}
                                   placeholder="Título"
                                   value={ac.title}
                                   onChange={(e) => {
@@ -1428,9 +1442,7 @@ export default function EditUserPage() {
                                 />
                                 <input
                                   disabled={isPsychologist}
-                                  className={`flex-1 border rounded-lg px-3 py-2 ${
-                                    isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""
-                                  }`}
+                                  className={`flex-1 border rounded-lg px-3 py-2 ${isPsychologist ? "bg-gray-100 cursor-not-allowed" : ""}`}
                                   placeholder="Nota (opcional)"
                                   value={ac.note || ""}
                                   onChange={(e) => {
@@ -1592,4 +1604,6 @@ export default function EditUserPage() {
       )}
     </div>
   );
-}
+};
+
+export default EditUserPage;

@@ -17,7 +17,6 @@ import {
   Plus as PlusIcon,
   CheckCircle as CheckCircleIcon,
   Clock as ClockIcon,
-  X as XIcon,
   Download as DownloadIcon,
   ChevronDown as ChevronDownIcon,
   ChevronUp as ChevronUpIcon,
@@ -28,6 +27,12 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import { LoadingButton } from "./LoadingButton";
+import z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ErrorText } from "./ErrorText";
 
 /* ============================== Tipos locais ============================== */
 
@@ -57,6 +62,18 @@ const inRange = (dateISO?: string, from?: string, to?: string) => {
   if (to && d > new Date(to).getTime()) return false;
   return true;
 };
+const goalSchema = z.object({
+  title: z.string().min(3, "O título deve ter pelo menos 3 caracteres"),
+  description: z.string().min(10, "A descrição deve ter pelo menos 10 caracteres"),
+  consultationId: z.string().refine((id) => id.length > 0, "Consulta obrigatória"),
+  categoryId: z.string().refine((id) => id.length > 0, "Categoria obrigatória"),
+  targetDate: z.string().refine((date) => {
+    if (!date) return false
+    const parsed = new Date(date)
+    return !isNaN(parsed.getTime())
+  }, "Data inválida"),
+});
+type GoalFormData = z.infer<typeof goalSchema>;
 
 /* ============================== Componente ============================== */
 
@@ -75,14 +92,21 @@ export default function GoalsPage({ childId }: { childId: number }) {
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [expandedGoalId, setExpandedGoalId] = useState<number | null>(null);
 
-  const [newGoal, setNewGoal] = useState({
-    title: "",
-    description: "",
-    consultationId: 1,
-    categoryId: 1,
-    targetDate: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<GoalFormData>({
+    resolver: zodResolver(goalSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      consultationId: "1",
+      categoryId: "1",
+      targetDate: "",
+    },
   });
-
   /* ============================== Data ============================== */
 
   const loadGoals = async () => {
@@ -122,9 +146,6 @@ export default function GoalsPage({ childId }: { childId: number }) {
         setLoadingCategories(true);
         const cats = await getCategories();
         setCategories(cats);
-        if (cats.length > 0) {
-          setNewGoal((prev) => ({ ...prev, categoryId: cats[0].id }));
-        }
       } catch (err) {
         console.error("Erro ao buscar categorias:", err);
       } finally {
@@ -141,17 +162,15 @@ export default function GoalsPage({ childId }: { childId: number }) {
 
   /* ============================== Ações ============================== */
 
-  const handleCreate = async () => {
+  const onSubmit = async (data: GoalFormData) => {
     try {
       if (!childId) return;
-
+      setLoading(true);
       const created = await createGoal({
-        title: newGoal.title,
-        description: newGoal.description,
-        consultationId: newGoal.consultationId,
-        categoryId: newGoal.categoryId,
-        dueDate: newGoal.targetDate,
         status: "pending",
+        ...data,
+        categoryId: parseInt(data.categoryId),
+        consultationId: parseInt(data.consultationId),
       });
 
       const enhanced: GoalWithMilestones = {
@@ -165,16 +184,12 @@ export default function GoalsPage({ childId }: { childId: number }) {
       };
 
       setGoals((prev) => [...prev, enhanced]);
-      setNewGoal({
-        title: "",
-        description: "",
-        consultationId: 1,
-        categoryId: categories.length > 0 ? categories[0].id : 1,
-        targetDate: "",
-      });
+      reset();
       setShowCreateForm(false);
     } catch (err: any) {
       console.error("Erro ao criar meta:", err?.message || err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -316,48 +331,48 @@ export default function GoalsPage({ childId }: { childId: number }) {
       {/* Filtros estilo “pílulas” + intervalo de datas */}
       <div className="flex flex-col md:flex-row md:items-center gap-3">
         {/* Pílulas com scroll horizontal no mobile */}
-        <div className="-mx-4 px-4 flex items-center gap-2 overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => setTab("all")}
-            className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${
-              tab === "all" ? "bg-white shadow-sm text-gray-900" : "bg-gray-100 text-gray-700"
-            }`}
-          >
-            Todas
-          </button>
-          <button
-            onClick={() => setTab("active")}
-            className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${
-              tab === "active" ? "bg-white shadow-sm text-gray-900" : "bg-gray-100 text-gray-700"
-            }`}
-          >
-            Ativas
-          </button>
-          <button
-            onClick={() => setTab("completed")}
-            className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${
-              tab === "completed" ? "bg-white shadow-sm text-gray-900" : "bg-gray-100 text-gray-700"
-            }`}
-          >
-            Concluídas
-          </button>
+        <div className="-mx-4  max-[560px]:flex-col px-4 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <div className="flex justify-between">
 
-          {/* Por categoria */}
-          <div className="px-2 py-2 rounded-lg bg-gray-100 w-full md:w-auto">
-            <select
-              value={categoryFilter === "all" ? "all" : String(categoryFilter)}
-              onChange={(e) =>
-                setCategoryFilter(e.target.value === "all" ? "all" : parseInt(e.target.value))
-              }
-              className="w-full md:w-auto bg-transparent text-sm outline-none"
+            <button
+              onClick={() => setTab("all")}
+              className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${tab === "all" ? "bg-white shadow-sm text-gray-900" : "bg-gray-100 text-gray-700"
+                }`}
             >
-              <option value="all">Por Categoria</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+              Todas
+            </button>
+            <button
+              onClick={() => setTab("active")}
+              className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${tab === "active" ? "bg-white shadow-sm text-gray-900" : "bg-gray-100 text-gray-700"
+                }`}
+            >
+              Ativas
+            </button>
+            <button
+              onClick={() => setTab("completed")}
+              className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${tab === "completed" ? "bg-white shadow-sm text-gray-900" : "bg-gray-100 text-gray-700"
+                }`}
+            >
+              Concluídas
+            </button>
+
+            {/* Por categoria */}
+            <div className="px-2 py-2 rounded-lg bg-gray-100 w-full md:w-auto">
+              <select
+                value={categoryFilter === "all" ? "all" : String(categoryFilter)}
+                onChange={(e) =>
+                  setCategoryFilter(e.target.value === "all" ? "all" : parseInt(e.target.value))
+                }
+                className="w-full md:w-auto bg-transparent text-sm outline-none"
+              >
+                <option value="all">Por Categoria</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Por data alvo */}
@@ -439,42 +454,31 @@ export default function GoalsPage({ childId }: { childId: number }) {
 
       {/* Formulário de criação */}
       {showCreateForm && (
-        <Card className="bg-white rounded-lg shadow-sm border">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-bold text-gray-900">Criar Nova Meta</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowCreateForm(false)}
-                className="h-8 w-8 p-0"
-              >
-                <XIcon className="w-4 h-4" />
-              </Button>
-            </div>
+        <Dialog onOpenChange={setShowCreateForm} open={showCreateForm}>
+          <DialogContent className="p-4">
+            <DialogTitle>
+              Criar Nova Meta
+            </DialogTitle>
 
-            <div className="space-y-3">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
               <Input
                 placeholder="Título da Meta"
-                value={newGoal.title}
-                onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
+                {...register("title")}
                 className="w-full text-sm"
               />
+              <ErrorText field={errors.title} />
               <Textarea
                 placeholder="Descrição"
-                value={newGoal.description}
-                onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
+                {...register("description")}
                 rows={3}
                 className="w-full text-sm"
               />
+              <ErrorText field={errors.description} />
 
               <div>
                 <label className="block text-sm font-medium mb-1">Categoria</label>
                 <select
-                  value={newGoal.categoryId}
-                  onChange={(e) =>
-                    setNewGoal({ ...newGoal, categoryId: parseInt(e.target.value) })
-                  }
+                  {...register("categoryId")}
                   className="w-full p-2 border rounded-md text-sm"
                   disabled={loadingCategories}
                 >
@@ -488,25 +492,25 @@ export default function GoalsPage({ childId }: { childId: number }) {
                     ))
                   )}
                 </select>
+                <ErrorText field={errors.categoryId} />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">Data Alvo</label>
                 <Input
                   type="date"
-                  value={newGoal.targetDate}
-                  onChange={(e) => setNewGoal({ ...newGoal, targetDate: e.target.value })}
+                  {...register("targetDate")}
                   className="w-full text-sm"
                 />
+                <ErrorText field={errors.targetDate} />
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2">
-                <Button
-                  onClick={handleCreate}
-                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-3"
-                >
-                  Criar Meta
-                </Button>
+                <LoadingButton
+                  isLoading={loading}
+                  text="Criar Meta"
+                  submit
+                />
                 <Button
                   variant="outline"
                   onClick={() => setShowCreateForm(false)}
@@ -515,9 +519,9 @@ export default function GoalsPage({ childId }: { childId: number }) {
                   Cancelar
                 </Button>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </form>
+          </DialogContent>
+        </Dialog>
       )}
 
       {/* Lista de Metas (filtradas) */}
@@ -552,8 +556,8 @@ export default function GoalsPage({ childId }: { childId: number }) {
                               {goal.status === "in_progress"
                                 ? "Ativa"
                                 : goal.status === "pending"
-                                ? "Planeada"
-                                : "Concluída"}
+                                  ? "Planeada"
+                                  : "Concluída"}
                             </Badge>
                           </div>
                           <p className="text-gray-600 text-sm break-words">{goal.description}</p>
@@ -619,18 +623,16 @@ export default function GoalsPage({ childId }: { childId: number }) {
                                   onClick={() => toggleMilestone(goal.id, i)}
                                 >
                                   <div
-                                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center mt-0.5 ${
-                                      m.completed ? "bg-green-500 border-green-500" : "border-gray-300"
-                                    }`}
+                                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center mt-0.5 ${m.completed ? "bg-green-500 border-green-500" : "border-gray-300"
+                                      }`}
                                   >
                                     {m.completed && (
                                       <CheckCircleIcon className="w-3 h-3 text-white" />
                                     )}
                                   </div>
                                   <span
-                                    className={`text-xs ${
-                                      m.completed ? "text-gray-900 line-through" : "text-gray-700"
-                                    }`}
+                                    className={`text-xs ${m.completed ? "text-gray-900 line-through" : "text-gray-700"
+                                      }`}
                                   >
                                     {m.text}
                                   </span>

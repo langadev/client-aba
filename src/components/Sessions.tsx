@@ -13,7 +13,6 @@ import {
   Pencil as PencilIcon,
   Trash2 as TrashIcon,
   Target as TargetIcon,
-  Info as InfoIcon,
   MapPin as MapPinIcon,
   Video as VideoIcon,
 } from "lucide-react";
@@ -126,7 +125,6 @@ export default function Sessions(): JSX.Element {
   const user = useAuthStore((s) => s.user);
   const role = user?.role;
   const isPsychologist = role === "PSICOLOGO";
-  const isGuardian = role === "PAI"; // ajuste se houver "MAE/ENCARREGADO"
 
   const [child, setChild] = useState<Child | null>(null);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
@@ -350,15 +348,6 @@ export default function Sessions(): JSX.Element {
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6">
       {/* Banner para Pais/Responsáveis (somente leitura) */}
-      {isGuardian && !isPsychologist && (
-        <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50 text-amber-900 border border-amber-200">
-          <InfoIcon className="w-4 h-4 mt-0.5" />
-          <p className="text-sm">
-            Esta é uma visão de <b>consulta</b>. Pode ver os detalhes e metas definidas pelo psicólogo.
-            Para alterações, contacte a clínica.
-          </p>
-        </div>
-      )}
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -382,17 +371,15 @@ export default function Sessions(): JSX.Element {
       <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
         <button
           onClick={() => setActiveTab("upcoming")}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            activeTab === "upcoming" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
-          }`}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === "upcoming" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+            }`}
         >
           Próximas
         </button>
         <button
           onClick={() => setActiveTab("past")}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            activeTab === "past" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
-          }`}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === "past" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+            }`}
         >
           Anteriores
         </button>
@@ -406,16 +393,16 @@ export default function Sessions(): JSX.Element {
           const loc = sAny?.location as string | undefined;
 
           return (
-            <Card key={session.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div key={session.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition">
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col mx-auto lg:items-center justify-between gap-4">
                   <div className="flex-1">
                     <div
-                      className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3 cursor-pointer"
+                      className="flex flex-col justify-start max-sm:flex-row max-sm:items-center gap-2 max-sm:gap-4 mb-3 cursor-pointer"
                       onClick={() => setSelectedSession(session)}
                       title="Ver detalhes"
                     >
-                      <h3 className="text-lg font-bold text-gray-900">{session.reason}</h3>
+                      <h3 className="text-lg font-bold line-clamp-1 text-gray-900">{session.reason}</h3>
                       {session.status && (
                         <Badge className={getStatusColor(session.status)}>{String(session.status)}</Badge>
                       )}
@@ -440,7 +427,7 @@ export default function Sessions(): JSX.Element {
                       </div>
                     </div>
 
-                    {!!session.notes && <p className="text-gray-600 mt-1">{session.notes}</p>}
+                    {/* {!!session.notes && <p className="text-gray-600 mt-1 w-full text-wrap">{session.notes}</p>} */}
                   </div>
 
                   {isPsychologist && (
@@ -456,8 +443,8 @@ export default function Sessions(): JSX.Element {
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           );
         })}
         {list.length === 0 && <div className="text-sm text-gray-500 px-1">Sem sessões para mostrar.</div>}
@@ -507,7 +494,8 @@ export default function Sessions(): JSX.Element {
               )}
               {selectedSession.notes && (
                 <div>
-                  <span className="font-semibold">Notas:</span> {selectedSession.notes}
+                  <span className="font-semibold">Notas:</span>
+                  <textarea defaultValue={selectedSession.notes} readOnly className="w-full h-40" name="" id="" />
                 </div>
               )}
             </div>
