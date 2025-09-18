@@ -326,11 +326,11 @@ export default function Sessions(): JSX.Element {
     try {
       const newGoal = await createGoal({
         title: values.title,
+        categoryId:1,
         description: values.description,
         dueDate: values.dueDate || undefined,
         consultationId: selectedSession.id, // meta pertence à sessão
         status: "pending",
-        progress: 0,
       } as any);
       setSessionGoals((prev) => [...prev, newGoal]);
       setGoalModalOpen(false);
