@@ -19,6 +19,9 @@ import {
   CreditCard,
   HelpCircle,
   User as UserIcon,
+  Clock,
+  ChartPie,
+  ExternalLink,
 } from "lucide-react";
 
 import {
@@ -58,21 +61,6 @@ interface Goal {
   psychologistId: number;
 }
 
-// interface Child {
-//   id: number;
-//   name: string;
-//   birthdate: string;
-//   gender: Gender;
-//   parentId: number;
-//   psychologistId?: number;
-//   createdAt?: string;
-//   updatedAt?: string;
-//   psychologistName?: string;
-//   parentName?: string;
-//   address?: string;
-//   phone?: string;
-//   email?: string;
-// }
 
 /* ============================== Utilidades ============================== */
 
@@ -137,7 +125,12 @@ function NextSessionCard({
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="text-gray-900">Próxima Sessão</CardTitle>
+        <CardTitle className="text-gray-900 flex justify-between px-2 items-center">
+          <p>Próxima Sessão</p>
+          <span>
+            <Calendar className="w-4 h-4 inline-block mr-1 text-green-500 " />
+          </span>
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {next ? (
@@ -183,16 +176,23 @@ function DotIcon({ color }: { color: Activity["color"] }) {
     color === "blue"
       ? "text-blue-600"
       : color === "green"
-      ? "text-green-600"
-      : "text-purple-600";
-  return <Dot className={`w-5 h-5 ${cls}`} />;
+        ? "text-green-600"
+        : "text-purple-600";
+  return <Dot className={`w-10 h-10 ${cls}`} />;
 }
 
 function RecentActivityCard({ items }: { items: Activity[] }) {
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="text-gray-900">Atividade Recente</CardTitle>
+        <CardTitle className="text-gray-900 flex justify-between px-2 items-center">
+          <p>
+            Atividade Recente
+          </p>
+          <span>
+            <Clock className="w-4 h-4 inline-block mr-1 text-purple-500 w-white" />
+          </span>
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {items.length === 0 ? (
@@ -248,15 +248,14 @@ function GoalsSection({ goals }: { goals: UITherapyGoal[] }) {
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-semibold text-gray-900">{goal.title}</h3>
                 <span
-                  className={`text-sm font-semibold ${
-                    goal.color === "green"
-                      ? "text-green-600"
-                      : goal.color === "blue"
+                  className={`text-sm font-semibold ${goal.color === "green"
+                    ? "text-green-600"
+                    : goal.color === "blue"
                       ? "text-blue-600"
                       : goal.color === "purple"
-                      ? "text-purple-600"
-                      : "text-orange-600"
-                  }`}
+                        ? "text-purple-600"
+                        : "text-orange-600"
+                    }`}
                 >
                   {goal.progress}%
                 </span>
@@ -346,6 +345,7 @@ function RecentSessionsSection({
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-2xl">Sessões Recentes</CardTitle>
         <a href="#" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+          <ExternalLink className="w-4 h-4 inline-block mr-1" />
           Ver todas
         </a>
       </CardHeader>
@@ -358,8 +358,8 @@ function RecentSessionsSection({
             <div key={s.id} className="flex gap-3">
               <SessionColorBar color={s.color} />
               <div className="flex-1">
-                <div className="flex items-start justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">{s.title}</h3>
+                <div className="flex items-start justify-between ">
+                  <h3 className="text-lg font-semibold text-gray-900 max-w-56 truncate text-ellipsis">{s.title}</h3>
                   <div className="text-sm text-gray-500">
                     {new Date(s.dateISO).toLocaleDateString("pt-PT", {
                       month: "short",
@@ -369,7 +369,7 @@ function RecentSessionsSection({
                   </div>
                 </div>
 
-                <p className="text-gray-700 mt-1">{s.summary}</p>
+                <p className="text-gray-700 truncate text-ellipsis max-w-80 mt-1">{s.summary}</p>
 
                 <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
                   <UserIcon className="w-4 h-4" />
@@ -500,8 +500,8 @@ export default function ChildInfoPage() {
           c.status === "completed"
             ? { label: "Sessão concluída", color: "blue" as const }
             : c.status === "scheduled"
-            ? { label: "Sessão agendada", color: "purple" as const }
-            : { label: "Sessão cancelada", color: "purple" as const };
+              ? { label: "Sessão agendada", color: "purple" as const }
+              : { label: "Sessão cancelada", color: "purple" as const };
 
         const when = (() => {
           const d = new Date(c.date + "T" + (c.time || "00:00"));
@@ -664,11 +664,13 @@ export default function ChildInfoPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2">
-              Progresso Geral
+            <CardTitle className="flex justify-between items-center gap-2">
+              <p>Progresso Geral</p>
+              <span><ChartPie className="w-4 h-4 inline-block mr-1 text-blue-500 " />
+              </span>
             </CardTitle>
           </CardHeader>
-        <CardContent className="flex items-center justify-between">
+          <CardContent className="flex items-center justify-center">
             <ProgressRing value={progress || 70} />
           </CardContent>
         </Card>

@@ -15,10 +15,19 @@ import {
   Target as TargetIcon,
   MapPin as MapPinIcon,
   Video as VideoIcon,
+  Edit,
+  Download,
+  MessageCircleMore,
+  Share,
+  ChartColumnStacked,
+  Clock,
+  CheckCircle,
+  Users2,
+  EyeIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/store/userStore";
 
@@ -39,6 +48,7 @@ import { createGoal, type Goal } from "../api/repository/goalRepository";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Progress } from "./ui/progress";
 
 /* ========================= Utils ========================= */
 
@@ -326,7 +336,7 @@ export default function Sessions(): JSX.Element {
     try {
       const newGoal = await createGoal({
         title: values.title,
-        categoryId:1,
+        categoryId: 1,
         description: values.description,
         dueDate: values.dueDate || undefined,
         consultationId: selectedSession.id, // meta pertence à sessão
@@ -351,11 +361,88 @@ export default function Sessions(): JSX.Element {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Sessões de {child?.name ?? "—"}
-          </h1>
-          <p className="text-gray-600 mt-1">Gestão e acompanhamento de consultas</p>
+        <div className="w-full">
+          <Card className="w-full">
+            <CardHeader className="flex items-center justify-between px-4 ">
+              <div>
+                <CardTitle className="font-bold text-2xl">Sessões Terapêuticas</CardTitle>
+                <CardDescription>Emma Johnson - Sessao #218</CardDescription>
+              </div>
+              <div className="flex items-center justify-between w-fit gap-4">
+                <Button className="bg-blue-600 text-white">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Editar Perfil
+                </Button>
+                <Button className="bg-green-600 text-white">
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar PDF
+                </Button>
+                <Button className="bg-purple-600 text-white">
+                  <Share className="w-4 h-4 mr-2" />
+                  Partilhar
+                </Button>
+                <Button className="bg-orange-600 text-white">
+                  <MessageCircleMore className="w-4 h-4 mr-2" />
+                  Agendar Consulta
+                </Button>
+                <Button className="bg-gray-600 text-white">
+                  <ChartColumnStacked className="w-4 h-4 mr-2" />
+                  Comparar
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="flex items-center justify-between ">
+              <div className="bg-blue-100 px-7 py-4 rounded-sm flex items-center gap-2">
+                <CalendarIcon className="w-6 h-6 text-blue-500 mb-2" />
+                <div>
+                  <p className="text-blue-500">Data e Hora</p>
+                  <CardTitle className="text-blue-700 text-xl">
+                    Dec 25, 2023
+                  </CardTitle>
+                  <p className="text-blue-500">2:00 PM - 3:00 PM</p>
+                </div>
+              </div>
+              <div className="bg-green-100 px-7 py-4 rounded-sm flex items-center gap-2">
+                <Clock className="w-6 h-6 text-green-500 mb-2" />
+                <div>
+                  <p className="text-green-500">Duracao</p>
+                  <CardTitle className="text-green-700 text-xl">
+                    60 Minutos
+                  </CardTitle>
+                  <p className="text-green-500">Sessao Completa</p>
+                </div>
+              </div>
+              <div className="bg-purple-100 px-7 py-4 rounded-sm flex items-center gap-2">
+                <CalendarIcon className="w-6 h-6 text-purple-500 mb-2" />
+                <div>
+                  <p className="text-purple-500">Localizacao</p>
+                  <CardTitle className="text-purple-700 text-xl">
+                    Presencialmente
+                  </CardTitle>
+                  <p className="text-purple-500">Sala 3A</p>
+                </div>
+              </div>
+              <div className="bg-orange-100 px-7 py-4 rounded-sm flex items-center gap-2">
+                <CalendarIcon className="w-6 h-6 text-orange-500 mb-2" />
+                <div>
+                  <p className="text-orange-500">Terapeuta</p>
+                  <CardTitle className="text-orange-700 text-xl">
+                    Dr. Rodrigez
+                  </CardTitle>
+                  <p className="text-orange-500">ABA primaria</p>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="space-x-3">
+              <Badge className="bg-green-100 text-green-800 capitalize flex items-center gap-1">
+                <CheckCircle className="w-4 h-4 text-green-700" />
+                Completado
+              </Badge>
+              <span className="text-gray-500">
+                Sessao completa com sucesso!
+              </span>
+            </CardFooter>
+          </Card>
         </div>
         {isPsychologist && (
           <div className="flex gap-2">
@@ -386,11 +473,36 @@ export default function Sessions(): JSX.Element {
       </div>
 
       {/* Lista */}
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-2 gap-6">
         {list.map((session) => {
           const sAny = session as any;
           const inPerson = sAny?.isInPerson === true;
           const loc = sAny?.location as string | undefined;
+          return (
+            <>
+              <SessionCard
+                key={session.id}
+                status={session.status}
+                date={session.date}
+                time={session.time}
+                reason={session.reason}
+              />
+              <SessionCard
+                key={session.id}
+                status={session.status}
+                date={session.date}
+                time={session.time}
+                reason={session.reason}
+              />
+            <SessionCard
+              key={session.id}
+              status={session.status}
+              date={session.date}
+              time={session.time}
+              reason={session.reason}
+            />
+            </>
+          )
 
           return (
             <div key={session.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition">
@@ -720,4 +832,56 @@ export default function Sessions(): JSX.Element {
       )}
     </div>
   );
+}
+type SessionCardProps = {
+  id?: string;
+  title?: string;
+  status: string | undefined;
+  reason?: string;
+  date: string;
+  time?: string;
+}
+function SessionCard({
+  date, reason, status, title = "Sessão Terapêutica"
+}: SessionCardProps) {
+  return (
+    <Card className="border-l-4 border-l-purple-500">
+      <CardHeader className="flex items-center justify-between px-5 ">
+        <div className="flex items-center justify-center gap-2">
+          <div className="text-purple-500 bg-purple-100 rounded-md p-3">
+            <Users2 />
+          </div>
+          <div className="space-y-2">
+            <CardTitle className="text-xl font-bold">{title}</CardTitle>
+            <CardDescription>
+              <Badge className="bg-purple-100 text-purple-800">Meta Principal</Badge>
+              <Badge className="bg-green-100 text-green-800">{status}</Badge>
+            </CardDescription>
+          </div>
+        </div>
+        <div>
+          <CardTitle className="text-3xl font-bold text-purple-500">75%</CardTitle>
+          <CardDescription className="text-gray-500">Progresso</CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4 px-5">
+        <CardDescription className="text-md">
+          {reason}
+        </CardDescription>
+        <Progress value={75} className="[&>div]:bg-purple-500" />
+      </CardContent>
+      <CardFooter className="flex items-center justify-between px-5 ">
+        <div className="space-x-2 flex items-center justify-center">
+          <CalendarIcon className="w-4 h-4 text-gray-500 inline-block mr-1" />
+          <span className="text-gray-500">Meta: {new Date(date).toLocaleDateString()}</span>
+        </div>
+        <div>
+          <Button variant="outline" size="sm" className="bg-purple-500 text-white hover:bg-purple-600">
+            <EyeIcon className="w-4 h-4 mr-2" />
+            Ver Detalhes
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
+  )
 }

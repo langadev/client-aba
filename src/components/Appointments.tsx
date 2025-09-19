@@ -1,8 +1,8 @@
 "use client"
 import React, { useState, type JSX } from "react";
-import { CalendarIcon, ClockIcon, UserIcon, VideoIcon, MapPinIcon, PlusIcon, EditIcon } from "lucide-react";
+import { CalendarIcon, ClockIcon, UserIcon, VideoIcon, MapPinIcon, PlusIcon, EditIcon, Download, Edit, Video, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export const Appointments = (): JSX.Element => {
@@ -100,10 +100,20 @@ export const Appointments = (): JSX.Element => {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Marcações</h1>
           <p className="text-gray-600 mt-1">Agendar e gerir marcações de terapia</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-          <PlusIcon className="w-4 h-4 mr-2" />
-          Agendar Marcação
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+            <PlusIcon className="w-4 h-4 mr-2" />
+            Agendar Marcação
+          </Button>
+          <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+            <Edit className="w-4 h-4 mr-2" />
+            Sugerir Alteração
+          </Button>
+          <Button className="bg-green-600 hover:bg-green-700 text-white">
+            <Download className="w-4 h-4 mr-2" />
+            Baixar Agenda
+          </Button>
+        </div>
       </div>
 
       {/* Alternar Visualização */}
@@ -111,20 +121,20 @@ export const Appointments = (): JSX.Element => {
         <button
           onClick={() => setSelectedView("calendar")}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${selectedView === "calendar"
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-600 hover:text-gray-900"
+            ? "bg-white text-gray-900 shadow-sm"
+            : "text-gray-600 hover:text-gray-900"
             }`}
         >
-          Vista de Calendário
+          Calendário
         </button>
         <button
           onClick={() => setSelectedView("list")}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${selectedView === "list"
-              ? "bg-white text-gray-900 shadow-sm"
-              : "text-gray-600 hover:text-gray-900"
+            ? "bg-white text-gray-900 shadow-sm"
+            : "text-gray-600 hover:text-gray-900"
             }`}
         >
-          Vista de Lista
+          Lista
         </button>
       </div>
 
@@ -165,6 +175,7 @@ export const Appointments = (): JSX.Element => {
             </Card>
           ) : (
             <div className="space-y-4">
+              <AppointmentCard />
               {appointments.map((appointment) => (
                 <Card key={appointment.id} className="bg-white rounded-xl shadow-sm">
                   <CardContent className="p-4 sm:p-6">
@@ -282,3 +293,37 @@ export const Appointments = (): JSX.Element => {
     </div>
   );
 };
+
+
+function AppointmentCard() {
+  return (
+    <Card className="border-l-4 border-l-orange-500">
+      <CardHeader className="flex items-center justify-between">
+        <div className="bg-orange-50">
+          <VideoIcon className="w-6 h-6 text-orange-500" />
+        </div>
+        <div className="grid grid-cols-1">
+          <div className="flex items-center justify-between">
+            <CardTitle>Card Title</CardTitle>
+            <Badge className="bg-blue-100 text-blue-800">Virtual</Badge>
+            <Badge className="bg-green-100 text-green-800">Confirmada</Badge>
+          </div>
+          <CardDescription className="text-blue-500">2:00 PM</CardDescription>
+        </div>
+        <div className="grid grid-cols-1">
+          <p>Duracao: 60 Mins</p>
+          <p>
+            <ClipboardCheck className="w-4 h-4 inline-block mr-1" />
+            Dr. Michael Chen
+          </p>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <p>Card Content</p>
+      </CardContent>
+      <CardFooter>
+        <p>Card Footer</p>
+      </CardFooter>
+    </Card>
+  )
+}

@@ -33,6 +33,8 @@ import {
   Search as SearchIcon,
   Share2 as ShareIcon,
   MessageSquare as MessageSquareIcon,
+  Clock,
+  ChartNoAxesCombined,
 } from "lucide-react";
 
 import {
@@ -372,9 +374,8 @@ export default function ReportList() {
             <button
               key={k}
               onClick={() => setKind(k)}
-              className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${
-                kind === k ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${kind === k ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"
+                }`}
             >
               {k === "all" ? "Todos os Relatórios" : kindLabel[k]}
             </button>
@@ -404,23 +405,28 @@ export default function ReportList() {
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <Card>
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-lg line-clamp-1 font-bold">Total de Relatórios</CardTitle>
+            <FileTextIcon className="w-6 h-6 text-blue-600" />
+          </CardHeader>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Total de Relatórios</p>
-            <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center justify-center">
               <span className="text-3xl font-bold text-gray-900">{totalReports}</span>
-              <FileTextIcon className="w-6 h-6 text-blue-600" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Disponíveis</p>
+            <p className="text-md text-center text-gray-500 mt-1">Disponíveis</p>
           </CardContent>
         </Card>
 
         <Card>
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-lg line-clamp-1 font-bold">Ultimo Relatório</CardTitle>
+            <Clock className="w-6 h-6 text-green-600" />
+          </CardHeader>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Último Relatório</p>
             {latestReport ? (
               <>
-                <div className="text-xl font-semibold text-gray-900 mt-1">{fmt(latestReport.createdAt)}</div>
-                <p className="text-xs text-gray-500 mt-1 line-clamp-1">{latestReport.title}</p>
+                <div className="text-xl font-semibold text-gray-900  text-center">{fmt(latestReport.createdAt)}</div>
+                <p className="text-md text-gray-500 mt-1 line-clamp-1 text-center">{latestReport.title}</p>
               </>
             ) : (
               <p className="text-sm text-gray-500 mt-2">—</p>
@@ -429,16 +435,19 @@ export default function ReportList() {
         </Card>
 
         <Card>
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-lg line-clamp-1 font-bold">Mais Visto</CardTitle>
+            <EyeIcon className="w-6 h-6 text-purple-600" />
+          </CardHeader>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Mais Visto</p>
             {mostViewed ? (
               <>
-                <div className="text-base font-semibold text-gray-900 mt-1 line-clamp-1">
+                <div className="text-base font-semibold text-center text-gray-900  line-clamp-1">
                   {mostViewed.title || "Relatório"}
                 </div>
-                <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
-                  <EyeIcon className="w-4 h-4" /> {viewsOf(mostViewed)} visualizações
-                </div>
+                <p className=" text-md text-center text-gray-600 mt-1">
+                  {viewsOf(mostViewed)} visualizações
+                </p>
               </>
             ) : (
               <p className="text-sm text-gray-500 mt-2">—</p>
@@ -447,13 +456,16 @@ export default function ReportList() {
         </Card>
 
         <Card>
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-lg line-clamp-1 font-bold">Tendência</CardTitle>
+            <ChartNoAxesCombined className="w-6 h-6 text-orange-600" />
+          </CardHeader>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Tendência</p>
-            <div className={`text-2xl font-bold mt-1 ${trendPct >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <div className={`text-2xl font-bold text-center ${trendPct >= 0 ? "text-green-600" : "text-red-600"}`}>
               {trendPct >= 0 ? "+" : ""}
               {trendPct}% <TrendingUpIcon className="inline w-5 h-5 ml-1" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">vs. trimestre anterior</p>
+            <p className="text-md text-center text-gray-500 mt-1">vs. trimestre anterior</p>
           </CardContent>
         </Card>
       </div>
@@ -488,7 +500,7 @@ export default function ReportList() {
       </Card>
 
       {/* Destaque: último relatório */}
-      {latestReport && (
+      {/* {latestReport && (
         <Card className="mt-2">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
@@ -566,7 +578,7 @@ export default function ReportList() {
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
 
       {/* Alerts */}
       {error && (
@@ -594,77 +606,18 @@ export default function ReportList() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1  sm:gap-6">
           {filtered.map((report) => (
-            <Card key={report.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base sm:text-lg font-semibold line-clamp-1">
-                    {report.title}
-                  </CardTitle>
-                  <Badge variant={report.id === selected?.id ? "default" : "outline"} className="shrink-0">
-                    #{report.consultationId}
-                  </Badge>
-                </div>
-                <CardDescription className="line-clamp-2">{report.description}</CardDescription>
-              </CardHeader>
-
-              <CardContent className="pb-3">
-                <div className="flex items-center text-sm text-gray-600 mb-2">
-                  <CalendarIcon className="w-4 h-4 mr-2" />
-                  Criado em {fmt(report.createdAt)}
-                </div>
-                {report.consultation?.child && (
-                  <div className="flex items-center text-sm text-gray-600">
-                    <UserIcon className="w-4 h-4 mr-2" />
-                    <span className="truncate">{report.consultation.child.name}</span>
-                  </div>
-                )}
-              </CardContent>
-
-              <CardFooter className="pt-3 border-t">
-                <div className="flex flex-wrap items-center gap-2 w-full">
-                  <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-                    <Button variant="outline" size="sm" className="px-2 sm:px-3" onClick={() => handleSelect(report.id)}>
-                      Ver
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="px-2 sm:px-3"
-                      onClick={() => handleDownload(report.consultationId)}
-                      disabled={downloadingId === report.consultationId}
-                    >
-                      {downloadingId === report.consultationId ? (
-                        <LoaderIcon className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <DownloadIcon className="w-4 h-4 mr-2" />
-                      )}
-                      <span className="hidden sm:inline">Baixar PDF</span>
-                      <span className="sm:hidden">PDF</span>
-                    </Button>
-                  </div>
-
-                  {isPsychologist && (
-                    <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:ml-auto">
-                      <Button variant="outline" size="sm" className="px-2 sm:px-3" onClick={() => startEdit(report)}>
-                        <EditIcon className="w-4 h-4" />
-                        <span className="ml-2 hidden sm:inline">Editar</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="px-2 sm:px-3 text-red-600 hover:text-red-700"
-                        onClick={() => handleDelete(report.id)}
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                        <span className="ml-2 hidden sm:inline">Eliminar</span>
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </CardFooter>
-            </Card>
+            <ReportCard
+              key={report.id}
+              report={report}
+              isPsychologist={isPsychologist}
+              handleDelete={handleDelete}
+              handleDownload={handleDownload}
+              downloadingId={downloadingId}
+              handleSelect={handleSelect}
+              startEdit={startEdit}
+            />
           ))}
         </div>
       )}
@@ -782,4 +735,177 @@ export default function ReportList() {
       )}
     </div>
   );
+}
+
+type ReportCardProps = {
+  report: ReportDTO;
+  isPsychologist: boolean;
+  handleDownload: (cId: number) => void;
+  downloadingId: number | null;
+  startEdit: (r: ReportDTO) => void;
+  handleSelect: (id: number) => void;
+  handleDelete: (id: number) => void;
+}
+
+function ReportCard({
+  report,
+  isPsychologist,
+  handleDownload,
+  downloadingId,
+  startEdit,
+  handleSelect,
+  // handleDelete,
+}: ReportCardProps) {
+
+  return(
+        <Card className="mt-2 border-l-4 border-l-blue-500">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="h-10 w-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                <FileTextIcon className="w-5 h-5" />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {report.title || "Progress Summary"}
+                  </h3>
+                  <Badge variant="outline" className="text-blue-700 border-blue-200 bg-blue-50">
+                    Progress Report
+                  </Badge>
+                  <Badge className="bg-green-100 text-green-800">Final</Badge>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mt-2">
+                  <div className="inline-flex items-center gap-1">
+                    <UserIcon className="w-4 h-4" />
+                    {report.consultation?.psychologist?.name || "Dr(a). responsável"}
+                  </div>
+                  <div className="inline-flex items-center gap-1">
+                    <CalendarIcon className="w-4 h-4" />
+                    Criado: {fmt(report.createdAt)}
+                  </div>
+                  {report.updatedAt && (
+                    <div className="inline-flex items-center gap-1">
+                      <CalendarIcon className="w-4 h-4" />
+                      Atualizado: {fmt(report.updatedAt)}
+                    </div>
+                  )}
+                  <div className="inline-flex items-center gap-1">
+                    <EyeIcon className="w-4 h-4" /> {viewsOf(report)} views
+                  </div>
+                  <div className="inline-flex items-center gap-1">
+                    <MessageSquareIcon className="w-4 h-4" /> {(report as any).comments ?? 0} comentários
+                  </div>
+                </div>
+
+                {report.description && (
+                  <p className="text-gray-700 text-sm mt-3 line-clamp-3">
+                    {report.description}
+                  </p>
+                )}
+
+                <div className="flex flex-wrap gap-2 mt-4">
+                  <Button className="text-gray-500 bg-gray-50 hover:text-gray-600 hover:bg-gray-100" variant="outline" onClick={() => handleSelect(report.id)}>
+                    <EyeIcon className="w-4 h-4 mr-2" />
+                    Ver
+                  </Button>
+                  <Button
+                  className="text-blue-500 bg-blue-50 hover:text-blue-600 hover:bg-blue-100"
+                    variant="outline"
+                    onClick={() => handleDownload(report.consultationId)}
+                    disabled={downloadingId === report.consultationId}
+                  >
+                    {downloadingId === report.consultationId ? (
+                      <LoaderIcon className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <DownloadIcon className="w-4 h-4 mr-2" />
+                    )}
+                    Download
+                  </Button>
+                  <Button variant="outline" className="text-green-500 bg-green-50 hover:text-green-600 hover:bg-green-100" onClick={() => console.log("share report", report.id)}>
+                    <ShareIcon className="w-4 h-4 mr-2" />
+                    Share
+                  </Button>
+                  <Button variant="outline" className="text-orange-500 bg-orange-50 hover:text-orange-600 hover:bg-orange-100" onClick={() => console.log("comment report", report.id)}>
+                    <MessageSquareIcon className="w-4 h-4 mr-2" />
+                    Comment
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+  )
+  return (
+    <Card key={report.id} className="hover:shadow-md border-l-4 border-l-green-500 transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-2">
+          <CardTitle className="text-base sm:text-lg font-semibold line-clamp-1">
+            {report.title}
+          </CardTitle>
+          {/* <Badge variant={report.id === selected?.id ? "default" : "outline"} className="shrink-0">
+            #{report.consultationId}
+          </Badge> */}
+        </div>
+        <CardDescription className="line-clamp-2">{report.description}</CardDescription>
+      </CardHeader>
+
+      <CardContent className="pb-3">
+        <div className="flex items-center text-sm text-gray-600 mb-2">
+          <CalendarIcon className="w-4 h-4 mr-2" />
+          Criado em {fmt(report.createdAt)}
+        </div>
+        {report.consultation?.child && (
+          <div className="flex items-center text-sm text-gray-600">
+            <UserIcon className="w-4 h-4 mr-2" />
+            {/* <span className="truncate">{report.consultation.child.name}</span> */}
+          </div>
+        )}
+      </CardContent>
+
+      <CardFooter className="pt-3 border-t">
+        <div className="flex flex-wrap items-center gap-2 w-full">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <Button variant="outline" size="sm" className="px-2 sm:px-3 text-gray-500 bg-gray-50 hover:bg-gray-100" onClick={() => handleSelect(report.id)}>
+              Ver
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="px-2 sm:px-3 text-blue-500 bg-blue-50 hover:bg-blue-100 hover:text-blue-600"
+              onClick={() => handleDownload(report.consultationId)}
+              disabled={downloadingId === report.consultationId}
+            >
+              {downloadingId === report.consultationId ? (
+                <LoaderIcon className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <DownloadIcon className="w-4 h-4 mr-2" />
+              )}
+              <span className="hidden sm:inline">Baixar PDF</span>
+              <span className="sm:hidden">PDF</span>
+            </Button>
+          </div>
+
+          {isPsychologist && (
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:ml-auto">
+              <Button variant="outline" size="sm" className="px-2 sm:px-3 text-blue-500 bg-blue-50 hover:bg-blue-100 hover:text-blue-600" onClick={() => startEdit(report)}>
+                <EditIcon className="w-4 h-4" />
+                <span className="ml-2 hidden sm:inline">Editar</span>
+              </Button>
+              {/* <Button
+                variant="outline"
+                size="sm"
+                className="px-2 sm:px-3 text-red-600 hover:text-red-700"
+                onClick={() => handleDelete(report.id)}
+              >
+                <TrashIcon className="w-4 h-4" />
+                <span className="ml-2 hidden sm:inline">Eliminar</span>
+              </Button> */}
+            </div>
+          )}
+        </div>
+      </CardFooter>
+    </Card>
+  )
 }

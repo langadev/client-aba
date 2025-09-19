@@ -20,9 +20,14 @@ import {
   Download as DownloadIcon,
   ChevronDown as ChevronDownIcon,
   ChevronUp as ChevronUpIcon,
+  ChartPie,
+  Users2,
+  EyeIcon,
+  Edit,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -397,12 +402,15 @@ export default function GoalsPage({ childId }: { childId: number }) {
 
       {/* Cards de estatísticas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="bg-white rounded-lg shadow-sm border">
+        <Card className="">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-xl font-semibold ">Progresso Geral</CardTitle>
+            <ChartPie className="w-5 h-5 text-blue-500" />
+          </CardHeader>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Progresso Geral</p>
             <div className="flex items-center justify-between mt-2 min-w-0">
               <div className="w-20 sm:w-24">
-                <Progress value={totalProgress} className="h-2" />
+                <Progress value={totalProgress} className="h-2 [&>div]:bg-blue-500" />
               </div>
               <span className="text-lg sm:text-xl font-bold text-gray-900 whitespace-nowrap">
                 {totalProgress}%
@@ -413,41 +421,47 @@ export default function GoalsPage({ childId }: { childId: number }) {
         </Card>
 
         <Card className="bg-white rounded-lg shadow-sm border">
-          <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Metas Ativas</p>
-            <div className="flex items-center justify-between mt-2 min-w-0">
-              <span className="text-2xl sm:text-3xl font-bold text-gray-900 whitespace-nowrap">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-xl font-semibold ">Metas Ativas</CardTitle>
+            <TargetIcon className="w-5 h-5 text-blue-500" />
+          </CardHeader>
+          <CardContent className="px-4">
+            <div className="flex items-center justify-center min-w-0">
+              <span className="text-2xl sm:text-3xl font-bold text-center text-gray-900 whitespace-nowrap">
                 {activeGoals.length}
               </span>
-              <TargetIcon className="w-6 h-6 text-blue-600 shrink-0" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Em progresso</p>
+            <p className="text-md text-center text-gray-500 mt-1">Em progresso</p>
           </CardContent>
         </Card>
 
         <Card className="bg-white rounded-lg shadow-sm border">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-xl font-semibold ">Metas Concluídas</CardTitle>
+            <CheckCircleIcon className="w-5 h-5 text-green-500" />
+          </CardHeader>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Concluídas</p>
-            <div className="flex items-center justify-between mt-2 min-w-0">
+            <div className="flex items-center justify-center  min-w-0">
               <span className="text-2xl sm:text-3xl font-bold text-gray-900 whitespace-nowrap">
                 {completedGoals.length}
               </span>
-              <CheckCircleIcon className="w-6 h-6 text-green-600 shrink-0" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Metas atingidas</p>
+            <p className="text-md text-gray-500 mt-1 text-center ">Metas atingidas</p>
           </CardContent>
         </Card>
 
         <Card className="bg-white rounded-lg shadow-sm border">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-xl font-semibold ">Este Mês</CardTitle>
+            <CalendarIcon className="w-5 h-5 text-orange-500" />
+          </CardHeader>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Este Mês</p>
-            <div className="flex items-center justify-between mt-2 min-w-0">
+            <div className="flex items-center justify-center min-w-0">
               <span className="text-2xl sm:text-3xl font-bold text-gray-900 whitespace-nowrap">
                 {dueThisMonth}
               </span>
-              <CalendarIcon className="w-6 h-6 text-orange-600 shrink-0" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Metas com prazo</p>
+            <p className="text-md text-center text-gray-500 mt-1">Metas com prazo</p>
           </CardContent>
         </Card>
       </div>
@@ -536,142 +550,21 @@ export default function GoalsPage({ childId }: { childId: number }) {
               </CardContent>
             </Card>
           ) : (
-            filteredGoals
-              .filter((g) => g.status !== "completed")
-              .map((goal) => (
-                <Card key={goal.id} className="bg-white rounded-lg shadow-sm border">
-                  <CardContent className="p-4">
-                    <div className="flex flex-col gap-4">
-                      {/* Cabeçalho */}
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                            <h3 className="text-lg font-bold text-gray-900 break-words">
-                              {goal.title}
-                            </h3>
-                            <Badge className={`text-xs ${getCategoryColor(goal.categoryId!)}`}>
-                              {getCategoryName(goal.categoryId!)}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              {goal.status === "in_progress"
-                                ? "Ativa"
-                                : goal.status === "pending"
-                                  ? "Planeada"
-                                  : "Concluída"}
-                            </Badge>
-                          </div>
-                          <p className="text-gray-600 text-sm break-words">{goal.description}</p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setExpandedGoalId(expandedGoalId === goal.id ? null : goal.id)
-                          }
-                          className="ml-0 sm:ml-2 shrink-0"
-                        >
-                          {expandedGoalId === goal.id ? (
-                            <ChevronUpIcon className="w-4 h-4" />
-                          ) : (
-                            <ChevronDownIcon className="w-4 h-4" />
-                          )}
-                        </Button>
-                      </div>
-
-                      {/* Info básica */}
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-sm text-gray-600 break-words">
-                        <div className="flex items-center gap-1">
-                          <CalendarIcon className="w-4 h-4" />
-                          <span>
-                            Prazo:{" "}
-                            {formatDate((goal as any).dueDate ?? (goal as any).targetDate)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <TrendingUpIcon className="w-4 h-4" />
-                          <span>{goal.progress ?? 0}% concluído</span>
-                        </div>
-                      </div>
-
-                      {/* Barra de progresso */}
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-medium text-gray-700">Progresso</span>
-                          <span className="text-xs text-gray-600">{goal.progress ?? 0}%</span>
-                        </div>
-                        <Progress value={goal.progress ?? 0} className="h-2" />
-                      </div>
-
-                      {/* Área expandida */}
-                      {expandedGoalId === goal.id && (
-                        <div className="space-y-4 pt-2 border-t">
-                          {goal.recentUpdate && (
-                            <div className="bg-blue-50 p-3 rounded-lg">
-                              <p className="text-sm text-blue-800">
-                                <strong>Atualização Recente:</strong> {goal.recentUpdate}
-                              </p>
-                            </div>
-                          )}
-
-                          <div>
-                            <h4 className="font-medium text-gray-900 mb-2 text-sm">Marcos</h4>
-                            <div className="space-y-2">
-                              {goal.milestones?.map((m, i) => (
-                                <div
-                                  key={i}
-                                  className="flex items-start gap-2 cursor-pointer"
-                                  onClick={() => toggleMilestone(goal.id, i)}
-                                >
-                                  <div
-                                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center mt-0.5 ${m.completed ? "bg-green-500 border-green-500" : "border-gray-300"
-                                      }`}
-                                  >
-                                    {m.completed && (
-                                      <CheckCircleIcon className="w-3 h-3 text-white" />
-                                    )}
-                                  </div>
-                                  <span
-                                    className={`text-xs ${m.completed ? "text-gray-900 line-through" : "text-gray-700"
-                                      }`}
-                                  >
-                                    {m.text}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="flex flex-wrap gap-2">
-                            <Button
-                              onClick={() => handleUpdateStatus(goal.id, "in_progress")}
-                              variant="outline"
-                              size="sm"
-                              className="text-xs py-1 px-2"
-                            >
-                              Marcar como “Em Progresso”
-                            </Button>
-                            <Button
-                              onClick={() => handleUpdateStatus(goal.id, "completed")}
-                              className="bg-green-600 hover:bg-green-700 text-white text-xs py-1 px-2"
-                              size="sm"
-                            >
-                              Concluir Meta
-                            </Button>
-                            <Button
-                              onClick={() => handleDelete(goal.id)}
-                              variant="outline"
-                              size="sm"
-                              className="text-red-600 border-red-200 hover:bg-red-50 text-xs py-1 px-2"
-                            >
-                              Eliminar
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
+            <div className="grid grid-cols-2 gap-4 max-[750px]:grid-cols-1">
+              {filteredGoals
+                .filter((g) => g.status !== "completed")
+                .map((goal) => (
+                  <GoalsCard
+                    date={goal.dueDate!}
+                    title={goal.title}
+                    status={goal.status}
+                    key={goal.id}
+                    reason={goal.description!}
+                    progress={goal.progress}
+                  />
+                ))
+              }
+            </div>
           )}
         </div>
       ) : (
@@ -737,6 +630,84 @@ export default function GoalsPage({ childId }: { childId: number }) {
           )}
         </div>
       )}
+      <div className="grid grid-cols-1 mt-5  gap-4">
+        <div>
+          <h2 className="text-2xl font-bold">Accoes Rapidas</h2>
+        </div>
+        <div className="grid grid-cols-4 gap-4 max-[1180px]:grid-cols-2 max-[530px]:grid-cols-1">
+          <Button size="lg" className="text-blue-500 border-2 border-blue-500 hover:text-white bg-white hover:bg-blue-600">
+            <PlusIcon className="w-10 h-10 mr-2" />
+            Adicionar Meta
+          </Button>
+          <Button size="lg" className="text-green-500 border-2 border-green-500 hover:text-white bg-white hover:bg-green-600">
+            <Edit className="w-10 h-10  mr-2" />
+            Atualizar Progresso
+          </Button>
+          <Button size="lg" className="text-purple-500 border-2 border-purple-500 hover:text-white bg-white hover:bg-purple-600">
+            <DownloadIcon className="w-10 h-10  mr-2" />
+            Baixar Relatorio
+          </Button>
+          <Button size="lg" className="text-orange-500 border-2 border-orange-500 hover:text-white bg-white hover:bg-orange-600">
+            <MessageCircle className="w-10 h-10 mr-2" />
+            Conversar com terapeuta
+          </Button>
+        </div>
+      </div>
     </div>
   );
+}
+
+type GoalsCardProps = {
+  id?: string;
+  title?: string;
+  status: string | undefined;
+  reason?: string;
+  date: string;
+  time?: string;
+  progress?: number;
+}
+function GoalsCard({
+  date, reason, status, title = "Sessão Terapêutica",
+  progress
+}: GoalsCardProps) {
+  return (
+    <Card className="border-l-4 border-l-purple-500">
+      <CardHeader className="flex items-center justify-between px-5 ">
+        <div className="flex items-center justify-center gap-2">
+          <div className="text-purple-500 max-[450px]:hidden bg-purple-100 rounded-md p-3">
+            <Users2 />
+          </div>
+          <div className="space-y-2">
+            <CardTitle className="text-xl font-bold line-clamp-1">{title}</CardTitle>
+            <CardDescription>
+              <Badge className="bg-purple-100 text-purple-800">Meta Principal</Badge>
+              <Badge className="bg-green-100 text-green-800">{status}</Badge>
+            </CardDescription>
+          </div>
+        </div>
+        <div>
+          <CardTitle className="text-3xl font-bold text-purple-500">{progress}%</CardTitle>
+          <CardDescription className="text-gray-500">Progresso</CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4 px-5">
+        <CardDescription className="text-md">
+          {reason}
+        </CardDescription>
+        <Progress value={progress} className="[&>div]:bg-purple-500" />
+      </CardContent>
+      <CardFooter className="flex items-center justify-between px-5 ">
+        <div className="space-x-2 flex items-center justify-center">
+          <CalendarIcon className="w-4 h-4 text-gray-500 inline-block mr-1" />
+          <span className="text-gray-500">Meta: {new Date(date).toLocaleDateString()}</span>
+        </div>
+        <div>
+          <Button variant="link" size="sm" className="text-blue-500">
+            <EyeIcon className="w-4 h-4 mr-2" />
+            Ver Detalhes
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
+  )
 }
